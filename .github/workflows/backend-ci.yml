@@ -2,6 +2,7 @@ name: backend-test-ci
 
 on:
   pull_request:
+    - '*'
 
 permissions:
   contents: read
