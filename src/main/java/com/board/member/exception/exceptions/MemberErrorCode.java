@@ -5,7 +5,10 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum MemberErrorCode {
-    ;
+
+    DUPLICATE_LOGIN_ID(HttpStatus.CONFLICT, "M001", "이미 존재하는 아이디 입니다."),
+    DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "M002", "이미 존재하는 닉네임 입니다.");
+
 
     private final HttpStatus httpStatus;
     private final String customCode;
