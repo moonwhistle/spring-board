@@ -6,6 +6,7 @@ import com.board.member.controller.member.dto.request.MemberRequest;
 import com.board.member.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,5 +28,10 @@ public class MemberController {
     @PatchMapping("/members")
     public ResponseEntity<MemberResponse> updateMember(@Auth Long memberId, @RequestBody MemberRequest request) {
         return ResponseEntity.ok(memberService.updateMember(memberId, request));
+    }
+
+    @DeleteMapping("/members")
+    public ResponseEntity<MemberResponse> deleteMember(@Auth Long memberId) {
+        return ResponseEntity.ok(memberService.deleteMember(memberId));
     }
 }

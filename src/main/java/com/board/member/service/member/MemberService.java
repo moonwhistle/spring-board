@@ -34,7 +34,19 @@ public class MemberService {
                 member.getMemberName(),
                 member.getMemberNickName(),
                 member.getMemberLoginId(),
-                member.getMemberPassword());
+                member.getMemberPassword()
+        );
+    }
+
+    public MemberResponse deleteMember(Long memberId) {
+        Member member = getMember(memberId);
+        memberRepository.delete(member);
+        return new MemberResponse(
+                member.getMemberName(),
+                member.getMemberNickName(),
+                member.getMemberLoginId(),
+                member.getMemberPassword()
+        );
     }
 
     private Member getMember(Long memberId) {
