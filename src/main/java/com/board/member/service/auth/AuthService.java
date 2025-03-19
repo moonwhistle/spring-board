@@ -11,9 +11,9 @@ import com.board.member.controller.auth.dto.response.SignUpResponse;
 import com.board.member.domain.auth.TokenProvider;
 import com.board.member.domain.member.Member;
 import com.board.member.repository.MemberRepository;
-import com.board.member.service.auth.exception.NotExistLoginIdException;
-import com.board.member.service.auth.exception.NotExistMemberException;
-import com.board.member.service.auth.exception.NotExistNickNameException;
+import com.board.member.service.auth.exception.ExistLoginIdException;
+import com.board.member.service.auth.exception.NotMatchLoginIdException;
+import com.board.member.service.auth.exception.ExistNickNameException;
 import com.board.global.resolver.exception.TokenInvalidException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -67,18 +67,18 @@ public class AuthService {
 
     private Member findMemberByLoginId(String loginId) {
         return memberRepository.findMemberByMemberLoginId(loginId)
-                .orElseThrow(NotExistMemberException::new);
+                .orElseThrow(NotMatchLoginIdException::new);
     }
 
     private void checkDuplicateLoginId(String loginId) {
         if(memberRepository.existsByMemberLoginId(loginId)) {
-            throw new NotExistLoginIdException();
+            throw new ExistLoginIdException();
         }
     }
 
     private void checkDuplicateNickName(String memberNickName) {
         if(memberRepository.existsByMemberNickName(memberNickName)) {
-            throw new NotExistNickNameException();
+            throw new ExistNickNameException();
         }
     }
 }

@@ -44,6 +44,21 @@ public class Member {
         this.memberPassword = memberPassword;
     }
 
+    public void update(String memberName, String memberNickName, String memberLoginId, String memberPassword) {
+        if (memberName != null) {
+            this.memberName = memberName;
+        }
+        if (memberNickName != null) {
+            this.memberNickName = memberNickName;
+        }
+        if (memberLoginId != null) {
+            this.memberLoginId = memberLoginId;
+        }
+        if (memberPassword != null) {
+            this.memberPassword = memberPassword;
+        }
+    }
+
     public void checkPassword(String password) {
         if(!Objects.equals(memberPassword, password)) {
             throw new NotMatchPasswordException();
