@@ -39,4 +39,9 @@ public class ArticleController {
     public ResponseEntity<ArticleResponse> showArticle(@PathVariable Long articleId) {
         return ResponseEntity.ok(articleService.showArticle(articleId));
     }
+
+    @GetMapping("/members/me/articles")
+    public ResponseEntity<ArticleResponses> showMemberArticles(@Auth Long memberId) {
+        return ResponseEntity.ok(articleService.showMemberArticles(memberId));
+    }
 }

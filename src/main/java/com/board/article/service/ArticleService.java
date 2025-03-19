@@ -6,7 +6,6 @@ import com.board.article.controller.dto.response.ArticleResponses;
 import com.board.article.domain.Article;
 import com.board.article.repository.ArticleRepository;
 import com.board.article.service.exception.NotFoundArticleException;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,17 +31,14 @@ public class ArticleService {
     }
 
     public ArticleResponses showAllArticles() {
-        List<ArticleResponse> articleResponses = new ArrayList<>();
-        List<Article> articles = getAllArticles();
-
-        for (Article article : articles) {
-            articleResponses.add(new ArticleResponse(
-                    article.getId(),
-                    article.getMemberId(),
-                    article.getTitle(),
-                    article.getContent()
-            ));
-        }
+        List<ArticleResponse> articleResponses = getAllArticles().stream()
+                .map(article -> new ArticleResponse(
+                        article.getId(),
+                        article.getMemberId(),
+                        article.getTitle(),
+                        article.getContent()
+                ))
+                .toList();
 
         return new ArticleResponses(articleResponses);
     }
@@ -58,6 +54,19 @@ public class ArticleService {
         );
     }
 
+    public ArticleResponses showMemberArticles(Long memberId) {
+        List<ArticleResponse> articleResponses = getMemberArticles(memberId).stream()
+                .map(article -> new ArticleResponse(
+                        article.getId(),
+                        article.getMemberId(),
+                        article.getTitle(),
+                        article.getContent()
+                ))
+                .toList();
+
+        return new ArticleResponses(articleResponses);
+    }
+
     @Transactional(readOnly = true)
     public List<Article> getAllArticles() {
         return articleRepository.findAll();
@@ -67,5 +76,10 @@ public class ArticleService {
     public Article getArticle(Long articleId) {
         return articleRepository.findById(articleId)
                 .orElseThrow(NotFoundArticleException::new);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Article> getMemberArticles(Long memberId) {
+        return articleRepository.findArticleByMemberId(memberId);
     }
 }
