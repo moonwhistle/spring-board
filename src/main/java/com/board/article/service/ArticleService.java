@@ -5,6 +5,7 @@ import com.board.article.controller.dto.response.ArticleResponse;
 import com.board.article.controller.dto.response.ArticleResponses;
 import com.board.article.domain.Article;
 import com.board.article.repository.ArticleRepository;
+import com.board.article.service.exception.NotFoundArticleException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -46,8 +47,25 @@ public class ArticleService {
         return new ArticleResponses(articleResponses);
     }
 
+    public ArticleResponse showArticle(Long articleId) {
+        Article article = getArticle(articleId);
+
+        return new ArticleResponse(
+                article.getId(),
+                article.getMemberId(),
+                article.getTitle(),
+                article.getContent()
+        );
+    }
+
     @Transactional(readOnly = true)
     public List<Article> getAllArticles() {
         return articleRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Article getArticle(Long articleId) {
+        return articleRepository.findById(articleId)
+                .orElseThrow(NotFoundArticleException::new);
     }
 }

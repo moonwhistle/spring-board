@@ -44,3 +44,44 @@
 2. Reflection을 이용하여 객체를 만들기 때문에, 기본 생성자가 반드시 필요합니다.
 3. 외부에서 기본 생성자를 직접 호출하는 것을 막기 위해 protected 사용합니다.
 3. 만약 기본 생성자가 없으면 InstantiationException 오류 발생!
+
+
+## @RequestParam vs @PathVariable 차이점
+
+---
+
+### 1. @RequestParam
+
+*  `@RequestParam`은 **쿼리 문자열**에서 값을 추출합니다. - (쿼리 파라미터)
+* 예시
+~~~
+@GetMapping("/foos")
+@ResponseBody
+public String getFooByIdUsingQueryParam(@RequestParam String id) {
+    return "ID: " + id;
+}
+~~~
+
+해당 요청을 처리하는 URL는 다음과 같습니다. - > `http://localhost:8080/spring-mvc-basics/foos?id=abc`
+
+* @RequestParam은 URL 디코딩되어 값을 추출합니다. 
+`http://localhost:8080/foos?id=ab+c` -> `ab c` 를 추출합니다. (+ 가 공백으로 디코딩 됌)
+* @RequestParam은 필터링이나 검색 조건을 전달할 때 유용합니다.
+
+### 2. @PathVariable
+
+* `@PathVariable`은 **URI 경로**에서 값을 추출합니다. - (URI 경로)
+* 예시
+~~~
+@GetMapping({"/myfoos/optional", "/myfoos/optional/{id}"})
+@ResponseBody
+public String getFooByOptionalId(@PathVariable(required = false) String id){
+    return "ID: " + id;
+}
+~~~
+
+해당 요청을 처리하는 URL 은 다음과 같습니다. -> `http://localhost:8080/spring-mvc-basics/myfoos/optional/abc`
+
+* @PathVariable은 URI 경로에서 값을 추출하기 때문에 값이 인코딩되지 않습니다.
+`http://localhost:8080/foos/id=ab+c` -> `ab+b` 값을 정확하게 추출합니다.
+* @PathVariable은 주로 리소스를 식별할 때 유용합니다.
