@@ -15,5 +15,6 @@ public class ArticleDataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         repository.save(new Article(1L, "신형만에 관하여", "아내는 신봉선"));
+        repository.save(new Article(1L, "신짱구", "바보"));
     }
 }

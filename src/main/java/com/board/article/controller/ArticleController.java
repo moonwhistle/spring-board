@@ -2,10 +2,13 @@ package com.board.article.controller;
 
 import com.board.article.controller.dto.request.ArticleRequest;
 import com.board.article.controller.dto.response.ArticleResponse;
+import com.board.article.controller.dto.response.ArticleResponses;
 import com.board.article.service.ArticleService;
 import com.board.global.resolver.annotation.Auth;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +23,14 @@ public class ArticleController {
 
     @PostMapping("/articles")
     public ResponseEntity<ArticleResponse> createArticle(@RequestBody ArticleRequest request, @Auth Long memberId) {
-        return ResponseEntity.ok(articleService.createArticle(request, memberId));
+        ArticleResponse response = articleService.createArticle(request, memberId);
+        URI location = URI.create("/api/articles/" + response.articleId());
+        return ResponseEntity.created(location)
+                .body(response);
+    }
+
+    @GetMapping("/articles")
+    public ResponseEntity<ArticleResponses> showAllArticles() {
+        return ResponseEntity.ok(articleService.showAllArticles());
     }
 }
