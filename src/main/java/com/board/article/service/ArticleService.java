@@ -82,6 +82,19 @@ public class ArticleService {
         );
     }
 
+    public ArticleResponse deleteArticle(Long articleId, Long memberId) {
+        Article article = getArticle(articleId);
+        validateAccessAboutArticle(memberId, article);
+        articleRepository.delete(article);
+
+        return new ArticleResponse(
+                article.getId(),
+                article.getMemberId(),
+                article.getTitle(),
+                article.getContent()
+        );
+    }
+
     private void validateAccessAboutArticle(Long memberId, Article article) {
         if(!Objects.equals(article.getMemberId(), memberId)) {
             throw new ForbiddenAccessArticleException();
