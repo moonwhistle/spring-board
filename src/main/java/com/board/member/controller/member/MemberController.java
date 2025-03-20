@@ -4,6 +4,8 @@ import com.board.global.resolver.annotation.Auth;
 import com.board.member.controller.member.dto.reponse.MemberResponse;
 import com.board.member.controller.member.dto.request.MemberRequest;
 import com.board.member.service.member.MemberService;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@OpenAPIDefinition(
+        info = @Info(title = "My API", version = "1.0", description = "API Documentation")
+)
 public class MemberController {
 
     private final MemberService memberService;
