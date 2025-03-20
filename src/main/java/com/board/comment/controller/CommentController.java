@@ -1,12 +1,14 @@
 package com.board.comment.controller;
 
 import com.board.comment.controller.dto.reponse.CommentResponse;
+import com.board.comment.controller.dto.reponse.CommentResponses;
 import com.board.comment.controller.dto.request.CommentRequest;
 import com.board.comment.service.CommentService;
 import com.board.global.resolver.annotation.Auth;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,5 +27,10 @@ public class CommentController {
         CommentResponse response = commentService.createComment(request, memberId, articleId);
         URI location = URI.create("/api/articles/" + response.articleId());
         return ResponseEntity.created(location).body(response);
+    }
+
+    @GetMapping("/articles/{articleId}/comments")
+    public ResponseEntity<CommentResponses> showArticleComments(@PathVariable Long articleId) {
+        return ResponseEntity.ok(commentService.showArticleComments(articleId));
     }
 }
