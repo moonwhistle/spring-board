@@ -67,8 +67,20 @@ public class CommentService {
         );
     }
 
+    public CommentResponse deleteComment(Long memberId, Long commentId) {
+        Comment comment = getComment(commentId);
+        validateAccessAboutComment(memberId, comment);
+        commentRepository.delete(comment);
+
+        return new CommentResponse(
+                comment.getMemberId(),
+                comment.getArticleId(),
+                comment.getContent()
+        );
+    }
+
     private void validateAccessAboutComment(Long memberId, Comment comment) {
-        if(!Objects.equals(comment.getMemberId(), memberId)) {
+        if (!Objects.equals(comment.getMemberId(), memberId)) {
             throw new ForbiddenAccessCommentException();
         }
     }
