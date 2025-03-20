@@ -1,11 +1,10 @@
-package com.board.article.domain;
+package com.board.comment.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Article {
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,26 +21,15 @@ public class Article {
     @Column
     private Long memberId;
 
-    @Column(nullable = false)
-    @NotBlank
-    private String title;
+    @Column
+    private Long articleId;
 
     @Column(nullable = false)
-    @NotBlank
     private String content;
 
-    public Article(Long memberId, String title, String content) {
+    public Comment(Long memberId, Long articleId, String content) {
         this.memberId = memberId;
-        this.title = title;
+        this.articleId = articleId;
         this.content = content;
-    }
-
-    public void update(String title, String content) {
-        if (title != null) {
-            this.title = title;
-        }
-        if (content != null) {
-            this.content = content;
-        }
     }
 }
