@@ -33,4 +33,9 @@ public class CommentController {
     public ResponseEntity<CommentResponses> showArticleComments(@PathVariable Long articleId) {
         return ResponseEntity.ok(commentService.showArticleComments(articleId));
     }
+
+    @GetMapping("members/me/comments")
+    public ResponseEntity<CommentResponses> showMemberComments(@Auth Long memberId) {
+        return ResponseEntity.ok(commentService.showMemberArticles(memberId));
+    }
 }

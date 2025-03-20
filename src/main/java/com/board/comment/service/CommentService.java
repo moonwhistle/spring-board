@@ -40,8 +40,25 @@ public class CommentService {
         return new CommentResponses(commentResponses);
     }
 
+    public CommentResponses showMemberArticles(Long memberId) {
+        List<CommentResponse> commentResponses = getMemberComments(memberId).stream()
+                .map(comment -> new CommentResponse(
+                        comment.getMemberId(),
+                        comment.getArticleId(),
+                        comment.getContent()
+                ))
+                .toList();
+
+        return new CommentResponses(commentResponses);
+    }
+
     @Transactional(readOnly = true)
     public List<Comment> getArticleComments(Long articleId) {
         return commentRepository.findAllByArticleId(articleId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Comment> getMemberComments(Long memberId) {
+        return commentRepository.findAllByMemberId(memberId);
     }
 }
