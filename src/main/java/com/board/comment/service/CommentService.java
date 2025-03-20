@@ -5,7 +5,10 @@ import com.board.comment.controller.dto.reponse.CommentResponses;
 import com.board.comment.controller.dto.request.CommentRequest;
 import com.board.comment.domain.Comment;
 import com.board.comment.repository.CommentRepository;
+import com.board.comment.service.exception.ForbiddenAccessCommentException;
+import com.board.comment.service.exception.NotFoundCommentException;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +55,24 @@ public class CommentService {
         return new CommentResponses(commentResponses);
     }
 
+    public CommentResponse updateComment(CommentRequest request, Long memberId, Long commentId) {
+        Comment comment = getComment(commentId);
+        validateAccessAboutComment(memberId, comment);
+        comment.update(request.content());
+
+        return new CommentResponse(
+                comment.getMemberId(),
+                comment.getArticleId(),
+                comment.getContent()
+        );
+    }
+
+    private void validateAccessAboutComment(Long memberId, Comment comment) {
+        if(!Objects.equals(comment.getMemberId(), memberId)) {
+            throw new ForbiddenAccessCommentException();
+        }
+    }
+
     @Transactional(readOnly = true)
     public List<Comment> getArticleComments(Long articleId) {
         return commentRepository.findAllByArticleId(articleId);
@@ -60,5 +81,11 @@ public class CommentService {
     @Transactional(readOnly = true)
     public List<Comment> getMemberComments(Long memberId) {
         return commentRepository.findAllByMemberId(memberId);
+    }
+
+    @Transactional(readOnly = true)
+    public Comment getComment(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(NotFoundCommentException::new);
     }
 }
