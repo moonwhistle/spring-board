@@ -5,8 +5,10 @@ import com.board.article.controller.dto.response.ArticleResponse;
 import com.board.article.controller.dto.response.ArticleResponses;
 import com.board.article.domain.Article;
 import com.board.article.repository.ArticleRepository;
+import com.board.article.service.exception.ForbiddenAccessArticleException;
 import com.board.article.service.exception.NotFoundArticleException;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +67,25 @@ public class ArticleService {
                 .toList();
 
         return new ArticleResponses(articleResponses);
+    }
+
+    public ArticleResponse updateArticle(ArticleRequest request, Long articleId, Long memberId) {
+        Article article = getArticle(articleId);
+        validateAccessAboutArticle(memberId, article);
+        article.update(request.title(), request.content());
+
+        return new ArticleResponse(
+                article.getId(),
+                article.getMemberId(),
+                article.getTitle(),
+                article.getContent()
+        );
+    }
+
+    private void validateAccessAboutArticle(Long memberId, Article article) {
+        if(!Objects.equals(article.getMemberId(), memberId)) {
+            throw new ForbiddenAccessArticleException();
+        }
     }
 
     @Transactional(readOnly = true)

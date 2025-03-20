@@ -9,6 +9,7 @@ import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,5 +44,10 @@ public class ArticleController {
     @GetMapping("/members/me/articles")
     public ResponseEntity<ArticleResponses> showMemberArticles(@Auth Long memberId) {
         return ResponseEntity.ok(articleService.showMemberArticles(memberId));
+    }
+
+    @PatchMapping("/articles/{articleId}")
+    public ResponseEntity<ArticleResponse> updateArticle(@RequestBody ArticleRequest request, @PathVariable Long articleId, @Auth Long memberId) {
+        return ResponseEntity.ok(articleService.updateArticle(request, articleId, memberId));
     }
 }
