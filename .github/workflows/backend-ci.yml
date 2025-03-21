@@ -2,7 +2,8 @@ name: backend-test-ci
 
 on:
   pull_request:
-    - '*'
+    branches:
+      - '*'
 
 permissions:
   contents: read
