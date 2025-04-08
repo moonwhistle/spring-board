@@ -11,11 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
-@RequestMapping("/api")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -24,7 +23,11 @@ public class AuthController {
     @PostMapping("/signUp")
     public ResponseEntity<SignUpResponse> signUp(@RequestBody SignUpRequest request) {
         SignUpResponse response = authService.signUp(request);
-        URI location = URI.create("/api/members/" + response.memberId());
+        URI location = ServletUriComponentsBuilder.fromCurrentRequestUri()
+                .path("/{id}")
+                .buildAndExpand(response.memberId())
+                .toUri();
+
         return ResponseEntity.created(location).body(response);
     }
 
