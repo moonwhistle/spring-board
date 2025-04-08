@@ -4,9 +4,9 @@ import com.board.article.controller.dto.request.ArticleRequest;
 import com.board.article.controller.dto.response.ArticleResponse;
 import com.board.article.controller.dto.response.ArticleResponses;
 import com.board.article.domain.Article;
+import com.board.article.exception.ArticleErrorCode;
+import com.board.article.exception.ArticleException;
 import com.board.article.repository.ArticleRepository;
-import com.board.article.service.exception.ForbiddenAccessArticleException;
-import com.board.article.service.exception.NotFoundArticleException;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -97,7 +97,7 @@ public class ArticleService {
 
     private void validateAccessAboutArticle(Long memberId, Article article) {
         if(!Objects.equals(article.getMemberId(), memberId)) {
-            throw new ForbiddenAccessArticleException();
+            throw new ArticleException(ArticleErrorCode.FORBIDDEN_ACCESS_ARTICLE);
         }
     }
 
@@ -109,7 +109,7 @@ public class ArticleService {
     @Transactional(readOnly = true)
     public Article getArticle(Long articleId) {
         return articleRepository.findById(articleId)
-                .orElseThrow(NotFoundArticleException::new);
+                .orElseThrow(() -> new ArticleException(ArticleErrorCode.NOT_FOUND_ARTICLE));
     }
 
     @Transactional(readOnly = true)

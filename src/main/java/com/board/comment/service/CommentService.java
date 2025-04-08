@@ -4,9 +4,9 @@ import com.board.comment.controller.dto.reponse.CommentResponse;
 import com.board.comment.controller.dto.reponse.CommentResponses;
 import com.board.comment.controller.dto.request.CommentRequest;
 import com.board.comment.domain.Comment;
+import com.board.comment.exception.CommentErrorCode;
+import com.board.comment.exception.CommentException;
 import com.board.comment.repository.CommentRepository;
-import com.board.comment.service.exception.ForbiddenAccessCommentException;
-import com.board.comment.service.exception.NotFoundCommentException;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +81,7 @@ public class CommentService {
 
     private void validateAccessAboutComment(Long memberId, Comment comment) {
         if (!Objects.equals(comment.getMemberId(), memberId)) {
-            throw new ForbiddenAccessCommentException();
+            throw new CommentException(CommentErrorCode.FORBIDDEN_ACCESS_COMMENT);
         }
     }
 
@@ -98,6 +98,6 @@ public class CommentService {
     @Transactional(readOnly = true)
     public Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
-                .orElseThrow(NotFoundCommentException::new);
+                .orElseThrow(() -> new CommentException(CommentErrorCode.NOT_FOUND_COMMENT));
     }
 }

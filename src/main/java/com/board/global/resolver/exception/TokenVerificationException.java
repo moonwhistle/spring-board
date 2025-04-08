@@ -1,7 +1,7 @@
 package com.board.global.resolver.exception;
 
-import com.board.global.exception.exceptions.GlobalErrorCode;
-import com.board.global.exception.exceptions.GlobalException;
+import com.board.global.exception.GlobalErrorCode;
+import com.board.global.exception.GlobalException;
 
 public class TokenVerificationException extends GlobalException {
 

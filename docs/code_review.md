@@ -10,3 +10,46 @@
 
 * application.yml 파일에 경로를 미리 설정한다.
 * URI 부분은 ServletUriComponentsBuilder의 fromCurrentRequestUri() 메서드를 사용하여 해결한다. -> 해당 메서드는 현재 요청을 보내는 경로를 받아오는 기능을 제공한다. 
+
+# 에러 코드 재사용성
+
+---
+## 문제점(현재 에러 코드 구조)
+
+~~~
+public class GlobalExceptionHandler {
+    @ExceptionHandler(GlobalException.class)
+    public ResponseEntity<GlobalErrorResponse> handleException(GlobalException e) {
+    }
+}
+
+@Getter
+public enum GlobalErrorCode {
+
+}
+
+@Getter
+public class GlobalException extends RuntimeException {
+
+    private final GlobalErrorCode errorCode;
+
+    public GlobalException(GlobalErrorCode errorCode) {
+    }
+}
+~~~
+
+* 현재 이 3단계 구조로, 특정 관심사 패키지마다 exception 을 관리하고 있음
+* 이렇게 할 경우, 패키지마다 계속해서 exception 을 생성 및 관리해야함 -> 코드 재활용이 안됌.
+
+## 해결책
+
+* common 패키지에, 공통적으로 사용되는 errorCode 를 interface화 시킴.
+* 이후 interface(errorCode) 를 사용한 BaseException 클래스를 생성 -> 다른 패키지 exception 에서 BaseException 상속받아 사용할 수 있음
+* 그렇기에 exception handler 도 하나로만 관리 가능
+
+## 결론
+
+* ErrorCode 인터페이스 하나 파서 관리
+* BaseException 생성, 그리고 이 클래스를 이용한  BaseExceptionHandler 생성 -> 핸들러 하나만 사용 가능
+* MemberException, ArticleException 등등 BaseException 을 상속받아 BaseExceptionHandler 에서 에러 처리 가능
+* ErrorCode 추가될때마다 exception 을 추가할 필요가 없어짐.

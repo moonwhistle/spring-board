@@ -3,8 +3,9 @@ package com.board.member.service.member;
 import com.board.member.controller.member.dto.reponse.MemberResponse;
 import com.board.member.controller.member.dto.request.MemberRequest;
 import com.board.member.domain.member.Member;
+import com.board.member.exception.MemberErrorCode;
+import com.board.member.exception.MemberException;
 import com.board.member.repository.MemberRepository;
-import com.board.member.service.member.exception.NotFoundMemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +52,6 @@ public class MemberService {
 
     private Member getMember(Long memberId) {
         return memberRepository.findMemberById(memberId)
-                .orElseThrow(NotFoundMemberException::new);
+                .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
     }
 }

@@ -1,10 +1,9 @@
-package com.board.article.exception.exceptions;
+package com.board.article.exception;
 
-import lombok.Getter;
+import com.board.common.exception.exceptions.BaseErrorCode;
 import org.springframework.http.HttpStatus;
 
-@Getter
-public enum ArticleErrorCode {
+public enum ArticleErrorCode implements BaseErrorCode {
 
     NOT_FOUND_ARTICLE(HttpStatus.NOT_FOUND, "A001", "게시글을 찾을 수 없습니다."),
     FORBIDDEN_ACCESS_ARTICLE(HttpStatus.BAD_REQUEST, "A002", "게시글에 대한 권한을 가지고 있지 않습니다.");
@@ -17,5 +16,20 @@ public enum ArticleErrorCode {
         this.httpStatus = httpStatus;
         this.customCode = customCode;
         this.message = message;
+    }
+
+    @Override
+    public HttpStatus httpStatus() {
+        return httpStatus;
+    }
+
+    @Override
+    public String customCode() {
+        return customCode;
+    }
+
+    @Override
+    public String message() {
+        return message;
     }
 }

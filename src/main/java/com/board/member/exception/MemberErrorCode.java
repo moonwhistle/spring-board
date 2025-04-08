@@ -1,10 +1,9 @@
-package com.board.member.exception.exceptions;
+package com.board.member.exception;
 
-import lombok.Getter;
+import com.board.common.exception.exceptions.BaseErrorCode;
 import org.springframework.http.HttpStatus;
 
-@Getter
-public enum MemberErrorCode {
+public enum MemberErrorCode implements BaseErrorCode {
 
     DUPLICATE_LOGIN_ID(HttpStatus.CONFLICT, "M001", "이미 존재하는 아이디 입니다."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "M002", "이미 존재하는 닉네임 입니다."),
@@ -20,5 +19,20 @@ public enum MemberErrorCode {
         this.httpStatus = httpStatus;
         this.customCode = customCode;
         this.message = message;
+    }
+
+    @Override
+    public HttpStatus httpStatus() {
+        return httpStatus;
+    }
+
+    @Override
+    public String customCode() {
+        return customCode;
+    }
+
+    @Override
+    public String message() {
+        return message;
     }
 }
