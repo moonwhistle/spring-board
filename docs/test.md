@@ -116,7 +116,19 @@ public void tearDown() {
 
 
 
+## Service layer Test
 
+---
 
+### 1. UnitTest
 
+* Service layer 만 테스트를 진행한다.
+* 외부 의존성은 모두 mocking 해서 처리한다.
+* 테스트 속도가 빠르고 로직을 집중적으로 테스트 할 수 있다.
+
+### 2. IntegrationTest(Spring Context 전체를 올림)
+
+* ``@SpringBootTest`` 와 ``@Transactional`` 어노테이션을 사용하여 테스트 진행한다.
+* 실제 Bean 들을 다 올리기 때문에 실제 동작을 더 잘 검증할 수 있다.
+* 하지만 속도 느리고 무겁다.
 
