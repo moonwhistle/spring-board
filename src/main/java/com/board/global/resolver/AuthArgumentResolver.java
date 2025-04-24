@@ -1,7 +1,7 @@
 package com.board.global.resolver;
 
 import com.board.global.resolver.annotation.Auth;
-import com.board.member.service.auth.AuthService;
+import com.board.member.Infrastructure.auth.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -16,8 +16,9 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
 
     private static final String TOKEN_HEADER_NAME = "Authorization";
+    private static final int TOKEN_BODY_DELIMITER = 7;
 
-    private final AuthService service;
+    private final JwtTokenProvider tokenProvider;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -29,7 +30,7 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         String tokenHeader = request.getHeader(TOKEN_HEADER_NAME);
-        String token = tokenHeader.substring(7);
-        return service.verifyAndExtractToken(token);
+        String token = tokenHeader.substring(TOKEN_BODY_DELIMITER);
+        return tokenProvider.extractMemberId(token);
     }
 }
