@@ -55,6 +55,7 @@ class MemberServiceTest {
         }
 
         @Test
+        @DisplayName("멤버 정보를 업데이트 한다.")
         void updateMember() {
             // given
             Long memberId = 1L;
@@ -74,6 +75,7 @@ class MemberServiceTest {
         }
 
         @Test
+        @DisplayName("멤버를 삭제한다.")
         void deleteMember() {
             // given
             Long memberId = 1L;
