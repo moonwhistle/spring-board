@@ -1,7 +1,5 @@
 package com.board.member.service.member;
 
-import com.board.member.controller.member.dto.reponse.MemberResponse;
-import com.board.member.controller.member.dto.request.MemberRequest;
 import com.board.member.domain.member.Member;
 import com.board.member.exception.MemberErrorCode;
 import com.board.member.exception.MemberException;
@@ -17,40 +15,22 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    @Transactional(readOnly = true)
-    public MemberResponse showMember(Long memberId) {
+    public Member updateMember(Long memberId, String requestName, String requestNickName, String requestId, String requestPassword) {
         Member member = getMember(memberId);
-        return new MemberResponse(
-                member.getMemberName(),
-                member.getMemberNickName(),
-                member.getMemberLoginId(),
-                member.getMemberPassword()
-        );
+        member.update(requestName, requestNickName, requestId, requestPassword);
+
+        return member;
     }
 
-    public MemberResponse updateMember(Long memberId, MemberRequest request) {
-        Member member = getMember(memberId);
-        member.update(request.name(), request.nickName(), request.id(), request.password());
-        return new MemberResponse(
-                member.getMemberName(),
-                member.getMemberNickName(),
-                member.getMemberLoginId(),
-                member.getMemberPassword()
-        );
-    }
-
-    public MemberResponse deleteMember(Long memberId) {
+    public Member deleteMember(Long memberId) {
         Member member = getMember(memberId);
         memberRepository.delete(member);
-        return new MemberResponse(
-                member.getMemberName(),
-                member.getMemberNickName(),
-                member.getMemberLoginId(),
-                member.getMemberPassword()
-        );
+
+        return member;
     }
 
-    private Member getMember(Long memberId) {
+    @Transactional(readOnly = true)
+    public Member getMember(Long memberId) {
         return memberRepository.findMemberById(memberId)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
     }

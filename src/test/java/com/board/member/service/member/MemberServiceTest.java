@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
-import com.board.member.controller.member.dto.reponse.MemberResponse;
 import com.board.member.controller.member.dto.request.MemberRequest;
 import com.board.member.domain.member.Member;
 import com.board.member.exception.MemberErrorCode;
@@ -48,10 +47,10 @@ class MemberServiceTest {
             given(memberRepository.findMemberById(memberId)).willReturn(Optional.of(member));
 
             // when
-            MemberResponse response = memberService.showMember(memberId);
+            Member response = memberService.getMember(memberId);
 
             // then
-            assertThat(response.name()).isEqualTo("신짱구");
+            assertThat(response.getMemberName()).isEqualTo("신짱구");
         }
 
         @Test
@@ -68,10 +67,10 @@ class MemberServiceTest {
             given(memberRepository.findMemberById(memberId)).willReturn(Optional.ofNullable(member));
 
             // when
-            MemberResponse response = memberService.updateMember(memberId, request);
+            Member response = memberService.updateMember(memberId, request.name(), request.nickName(), request.id(), request.password());
 
             // then
-            assertThat(response.name()).isEqualTo("홍길동");
+            assertThat(response.getMemberName()).isEqualTo("홍길동");
         }
 
         @Test
@@ -82,10 +81,10 @@ class MemberServiceTest {
             given(memberRepository.findMemberById(memberId)).willReturn(Optional.of(member));
 
             // when
-            MemberResponse response = memberService.deleteMember(memberId);
+            Member response = memberService.deleteMember(memberId);
 
             // then
-            assertThat(response.name()).isEqualTo("신짱구");
+            assertThat(response.getMemberName()).isEqualTo("신짱구");
         }
     }
 
@@ -100,7 +99,7 @@ class MemberServiceTest {
             given(memberRepository.findMemberById(memberId)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> memberService.showMember(memberId))
+            assertThatThrownBy(() -> memberService.getMember(memberId))
                     .isInstanceOf(MemberException.class)
                     .hasMessageContaining(MemberErrorCode.NOT_FOUND_MEMBER.message());
         }

@@ -22,19 +22,20 @@ public class AuthController {
 
     @PostMapping("/signUp")
     public ResponseEntity<SignUpResponse> signUp(@RequestBody SignUpRequest request) {
-        SignUpResponse response = authService.signUp(request);
+        Long memberId = authService.signUp(request.loginId(), request.memberName(), request.memberNickName(),
+                request.password());
         URI location = ServletUriComponentsBuilder.fromCurrentRequestUri()
                 .path("/{id}")
-                .buildAndExpand(response.memberId())
+                .buildAndExpand(memberId)
                 .toUri();
 
-        return ResponseEntity.created(location).body(response);
+        return ResponseEntity.created(location).body(new SignUpResponse(memberId));
     }
 
     @PostMapping("/login")
     public ResponseEntity<HttpHeaders> login(@RequestBody LoginRequest request) {
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("Authorization", "Bearer " + authService.login(request));
+        httpHeaders.set("Authorization", "Bearer " + authService.login(request.loginId(), request.password()));
         return ResponseEntity.status(HttpStatus.OK).body(httpHeaders);
     }
 }

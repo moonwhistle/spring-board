@@ -10,10 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.board.member.Infrastructure.JwtTokenProvider;
 import com.board.member.controller.auth.dto.request.LoginRequest;
 import com.board.member.controller.auth.dto.request.SignUpRequest;
-import com.board.member.controller.auth.dto.response.SignUpResponse;
 import com.board.member.service.auth.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,19 +35,12 @@ class AuthControllerTest {
     @MockBean
     private AuthService authService;
 
-    private SignUpResponse signUpResponse;
-
-    @BeforeEach
-    void set() {
-        signUpResponse = new SignUpResponse(1L, "token");
-    }
-
     @Test
     @DisplayName("회원가입을 진행한다.")
     void signUp() throws Exception {
         // given
         SignUpRequest request = new SignUpRequest("신짱구", "짱구", "aaa", "password123");
-        given(authService.signUp(request)).willReturn(signUpResponse);
+        given(authService.signUp(request.loginId(), request.memberName(), request.memberNickName(), request.password())).willReturn(1L);
         given(jwtTokenProvider.create(1L)).willReturn("token");
 
         // when & then
@@ -58,8 +49,7 @@ class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "http://localhost/signUp/1"))
-                .andExpect(jsonPath("$.memberId").value(1L))
-                .andExpect(jsonPath("$.token").value("token"));
+                .andExpect(jsonPath("$.memberId").value(1L));
     }
 
     @Test
@@ -68,7 +58,7 @@ class AuthControllerTest {
         // given
         LoginRequest request = new LoginRequest("aaa", "111");
         String token = "token";
-        given(authService.login(request)).willReturn(token);
+        given(authService.login(request.loginId(), request.password())).willReturn(token);
         given(jwtTokenProvider.create(1L)).willReturn(token);
 
         // when & then

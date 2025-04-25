@@ -9,8 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.board.global.resolver.AuthArgumentResolver;
-import com.board.member.controller.member.dto.reponse.MemberResponse;
 import com.board.member.controller.member.dto.request.MemberRequest;
+import com.board.member.domain.member.Member;
 import com.board.member.service.member.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,11 +37,11 @@ class MemberControllerTest {
     @MockBean
     private AuthArgumentResolver authArgumentResolver;
 
-    private MemberResponse response;
+    private Member member;
 
     @BeforeEach
     void set() throws Exception {
-        response = new MemberResponse("신짱구", "짱구", "aaa", "password123");
+        member = new Member("신짱구", "짱구", "aaa", "password123");
         given(authArgumentResolver.supportsParameter(any())).willReturn(true);
         given(authArgumentResolver.resolveArgument(any(), any(), any(), any())).willReturn(1L);
     }
@@ -51,7 +51,7 @@ class MemberControllerTest {
     void showMember() throws Exception {
         // given
         Long memberId = 1L;
-        given(memberService.showMember(memberId)).willReturn(response);
+        given(memberService.getMember(memberId)).willReturn(member);
 
         // when & then
         mockMvc.perform(get("/members")
@@ -66,8 +66,8 @@ class MemberControllerTest {
     void updateMember() throws Exception {
         // given
         MemberRequest request = new MemberRequest("신짱구", "짱구", "newId", "newPassword");
-        MemberResponse updatedResponse = new MemberResponse("신짱구", "짱구", "newId", "newPassword");
-        given(memberService.updateMember(1L, request)).willReturn(updatedResponse);
+        Member updatedResponse = new Member("신짱구", "짱구", "newId", "newPassword");
+        given(memberService.updateMember(1L, request.name(), request.nickName(), request.id(), request.password())).willReturn(updatedResponse);
 
         // when & then
         mockMvc.perform(patch("/members")
@@ -81,7 +81,7 @@ class MemberControllerTest {
     @DisplayName("유저 정보를 삭제한다.")
     void deleteMember() throws Exception {
         // given
-        given(memberService.deleteMember(1L)).willReturn(response);
+        given(memberService.deleteMember(1L)).willReturn(member);
 
         // when & then
         mockMvc.perform(delete("/members"))

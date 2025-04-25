@@ -7,7 +7,6 @@ import static org.mockito.BDDMockito.given;
 
 import com.board.member.controller.auth.dto.request.LoginRequest;
 import com.board.member.controller.auth.dto.request.SignUpRequest;
-import com.board.member.controller.auth.dto.response.SignUpResponse;
 import com.board.member.domain.auth.TokenProvider;
 import com.board.member.domain.member.Member;
 import com.board.member.exception.MemberErrorCode;
@@ -22,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,6 +33,9 @@ class AuthServiceTest {
 
     @Mock
     private TokenProvider tokenProvider;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private AuthService authService;
@@ -58,20 +61,19 @@ class AuthServiceTest {
             // given
             given(memberRepository.existsByMemberLoginId("gildong123")).willReturn(false);
             given(memberRepository.existsByMemberNickName("길동이")).willReturn(false);
+            given(passwordEncoder.encode("1234")).willReturn("encoded-password");
             given(memberRepository.save(any(Member.class))).willAnswer(invocation -> {
                 Member saved = invocation.getArgument(0);
                 ReflectionTestUtils.setField(saved, "id", 1L);
                 return saved;
             });
-            given(tokenProvider.create(1L)).willReturn("fake-jwt-token");
 
             // when
-            SignUpResponse response = authService.signUp(signUpRequest);
+            Long memberId = authService.signUp(signUpRequest.loginId(), signUpRequest.memberName(), signUpRequest.memberNickName(),
+                    signUpRequest.password());
 
             // then
-            assertThat(response)
-                    .extracting(SignUpResponse::memberId, SignUpResponse::token)
-                    .containsExactly(1L, "fake-jwt-token");
+            assertThat(memberId).isEqualTo(1L);
         }
 
         @Test
@@ -81,7 +83,8 @@ class AuthServiceTest {
             given(memberRepository.existsByMemberLoginId("gildong123")).willReturn(true);
 
             // when & then
-            assertThatThrownBy(() -> authService.signUp(signUpRequest))
+            assertThatThrownBy(() -> authService.signUp(signUpRequest.loginId(), signUpRequest.memberName(), signUpRequest.memberNickName(),
+                    signUpRequest.password()))
                     .isInstanceOf(MemberException.class)
                     .hasMessageContaining(MemberErrorCode.DUPLICATE_LOGIN_ID.message());
         }
@@ -94,7 +97,8 @@ class AuthServiceTest {
             given(memberRepository.existsByMemberNickName("길동이")).willReturn(true);
 
             // when & then
-            assertThatThrownBy(() -> authService.signUp(signUpRequest))
+            assertThatThrownBy(() -> authService.signUp(signUpRequest.loginId(), signUpRequest.memberName(), signUpRequest.memberNickName(),
+                    signUpRequest.password()))
                     .isInstanceOf(MemberException.class)
                     .hasMessageContaining(MemberErrorCode.DUPLICATE_NICKNAME.message());
         }
@@ -109,10 +113,11 @@ class AuthServiceTest {
             // given
             Long memberId = 1L;
             given(memberRepository.findMemberByMemberLoginId("gildong123")).willReturn(Optional.of(member));
+            given(passwordEncoder.matches("1234", "1234")).willReturn(true);
             given(tokenProvider.create(memberId)).willReturn("fake-jwt-token");
 
             // when
-            String token = authService.login(loginRequest);
+            String token = authService.login(loginRequest.loginId(), loginRequest.password());
 
             // then
             assertThat(token).isEqualTo("fake-jwt-token");
@@ -125,7 +130,7 @@ class AuthServiceTest {
             given(memberRepository.findMemberByMemberLoginId("gildong123")).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> authService.login(loginRequest))
+            assertThatThrownBy(() -> authService.login(loginRequest.loginId(), loginRequest.password()))
                     .isInstanceOf(MemberException.class)
                     .hasMessageContaining(MemberErrorCode.NOT_MATCH_LOGIN_ID.message());
         }
@@ -138,7 +143,7 @@ class AuthServiceTest {
             given(memberRepository.findMemberByMemberLoginId("gildong123")).willReturn(Optional.of(wrongPasswordMember));
 
             // when & then
-            assertThatThrownBy(() -> authService.login(loginRequest))
+            assertThatThrownBy(() -> authService.login(loginRequest.loginId(), loginRequest.password()))
                     .isInstanceOf(MemberException.class)
                     .hasMessageContaining(MemberErrorCode.NOT_MATCH_PASSWORD.message());
         }

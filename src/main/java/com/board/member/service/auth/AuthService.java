@@ -1,8 +1,5 @@
 package com.board.member.service.auth;
 
-import com.board.member.controller.auth.dto.request.LoginRequest;
-import com.board.member.controller.auth.dto.request.SignUpRequest;
-import com.board.member.controller.auth.dto.response.SignUpResponse;
 import com.board.member.domain.auth.TokenProvider;
 import com.board.member.domain.member.Member;
 import com.board.member.exception.MemberErrorCode;
@@ -22,23 +19,19 @@ public class AuthService {
     private final TokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder;
 
-    public SignUpResponse signUp(SignUpRequest request) {
-        checkDuplicateLoginId(request.loginId());
-        checkDuplicateNickName(request.memberNickName());
-        Member member = new Member(
-                request.memberName(),
-                request.memberNickName(),
-                request.loginId(),
-                passwordEncoder.encode(request.password()));
+    public Long signUp(String loginId, String name, String nickName, String password) {
+        checkDuplicateLoginId(loginId);
+        checkDuplicateNickName(nickName);
+        Member member = new Member(name, nickName, loginId, passwordEncoder.encode(password));
         memberRepository.save(member);
 
-        return new SignUpResponse(member.getId(), tokenProvider.create(member.getId()));
+        return member.getId();
     }
 
     @Transactional(readOnly = true)
-    public String login(LoginRequest request) {
-        Member member = findMemberByLoginId(request.loginId());
-        checkPassword(request.password(), member.getMemberPassword());
+    public String login(String loginId, String password) {
+        Member member = findMemberByLoginId(loginId);
+        checkPassword(password, member.getMemberPassword());
 
         return tokenProvider.create(member.getId());
     }
