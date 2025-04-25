@@ -9,9 +9,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.board.comment.controller.dto.reponse.CommentResponse;
-import com.board.comment.controller.dto.reponse.CommentResponses;
 import com.board.comment.controller.dto.request.CommentRequest;
+import com.board.comment.domain.Comment;
 import com.board.comment.service.CommentService;
 import com.board.global.resolver.AuthArgumentResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +21,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -40,13 +44,13 @@ class CommentControllerTest {
     @MockBean
     private AuthArgumentResolver authArgumentResolver;
 
-    private CommentResponse response;
-    private CommentResponses responses;
+    private Comment response;
+    private List<Comment> responses;
 
     @BeforeEach
     void setUp() throws Exception {
-        response = new CommentResponse(1L, 1L, "댓글 내용");
-        responses = new CommentResponses(List.of(response));
+        response = new Comment(1L, 1L, "댓글 내용");
+        responses = List.of(response);
         given(authArgumentResolver.supportsParameter(any())).willReturn(true);
         given(authArgumentResolver.resolveArgument(any(), any(), any(), any())).willReturn(1L);
     }
@@ -72,7 +76,7 @@ class CommentControllerTest {
         // given
         Long lastId = 3L;
         int size = 5;
-        given(commentService.showArticleComments(1L, lastId, size)).willReturn(responses);
+        given(commentService.getArticleComments(1L, lastId, size)).willReturn(responses);
 
         // when & then
         mockMvc.perform(get("/articles/1/comments")
@@ -88,7 +92,9 @@ class CommentControllerTest {
         // given
         int page = 0;
         int size = 10;
-        given(commentService.showMemberComments(1L, page, size)).willReturn(responses);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Comment> commentPage = new PageImpl<>(responses, pageable, responses.size());
+        given(commentService.getMemberComments(1L, page, size)).willReturn(commentPage);
 
         // when & then
         mockMvc.perform(get("/members/me/comments")
@@ -103,7 +109,7 @@ class CommentControllerTest {
     void updateComment() throws Exception {
         // given
         CommentRequest request = new CommentRequest("수정된 댓글");
-        CommentResponse updatedResponse = new CommentResponse(1L, 1L,"수정된 댓글");
+        Comment updatedResponse = new Comment(1L, 1L,"수정된 댓글");
         given(commentService.updateComment(any(), any(), any())).willReturn(updatedResponse);
 
         // when & then

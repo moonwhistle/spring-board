@@ -1,7 +1,5 @@
 package com.board.comment.service;
 
-import com.board.comment.controller.dto.reponse.CommentResponse;
-import com.board.comment.controller.dto.reponse.CommentResponses;
 import com.board.comment.controller.dto.request.CommentRequest;
 import com.board.comment.domain.Comment;
 import com.board.comment.exception.CommentErrorCode;
@@ -26,63 +24,27 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
 
-    public CommentResponse createComment(CommentRequest request, Long memberId, Long articleId) {
-        Comment comment = new Comment(memberId, articleId, request.content());
+    public Comment createComment(String content, Long memberId, Long articleId) {
+        Comment comment = new Comment(memberId, articleId, content);
         commentRepository.save(comment);
 
-        return new CommentResponse(
-                comment.getMemberId(),
-                comment.getArticleId(),
-                comment.getContent()
-        );
+        return comment;
     }
 
-    public CommentResponses showArticleComments(Long articleId, Long lastId, int size) {
-        List<CommentResponse> commentResponses = getArticleComments(articleId, lastId, size).stream()
-                .map(comment -> new CommentResponse(
-                        comment.getMemberId(),
-                        comment.getArticleId(),
-                        comment.getContent()
-                ))
-                .toList();
-
-        return new CommentResponses(commentResponses);
-    }
-
-    public CommentResponses showMemberComments(Long memberId, int page, int size) {
-        List<CommentResponse> commentResponses = getMemberComments(memberId, page, size).stream()
-                .map(comment -> new CommentResponse(
-                        comment.getMemberId(),
-                        comment.getArticleId(),
-                        comment.getContent()
-                ))
-                .toList();
-
-        return new CommentResponses(commentResponses);
-    }
-
-    public CommentResponse updateComment(CommentRequest request, Long memberId, Long commentId) {
+    public Comment updateComment(CommentRequest request, Long memberId, Long commentId) {
         Comment comment = getComment(commentId);
         comment.validateAccessAboutComment(memberId);
         comment.update(request.content());
 
-        return new CommentResponse(
-                comment.getMemberId(),
-                comment.getArticleId(),
-                comment.getContent()
-        );
+        return comment;
     }
 
-    public CommentResponse deleteComment(Long memberId, Long commentId) {
+    public Comment deleteComment(Long memberId, Long commentId) {
         Comment comment = getComment(commentId);
         comment.validateAccessAboutComment(memberId);
         commentRepository.delete(comment);
 
-        return new CommentResponse(
-                comment.getMemberId(),
-                comment.getArticleId(),
-                comment.getContent()
-        );
+        return comment;
     }
 
     @Transactional(readOnly = true)

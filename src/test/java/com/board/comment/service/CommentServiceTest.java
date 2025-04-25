@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-import com.board.comment.controller.dto.reponse.CommentResponse;
-import com.board.comment.controller.dto.reponse.CommentResponses;
 import com.board.comment.controller.dto.request.CommentRequest;
 import com.board.comment.domain.Comment;
 import com.board.comment.exception.CommentErrorCode;
@@ -61,11 +59,11 @@ class CommentServiceTest {
             given(commentRepository.save(any(Comment.class))).willReturn(comment);
 
             // when
-            CommentResponse response = commentService.createComment(request, memberId, articleId);
+            Comment response = commentService.createComment(request.content(), memberId, articleId);
 
             // then
             assertThat(response)
-                    .extracting(CommentResponse::content, CommentResponse::memberId, CommentResponse::articleId)
+                    .extracting(Comment::getContent, Comment::getMemberId, Comment::getArticleId)
                     .containsExactly("첫 번째 게시글 댓글1", memberId, articleId);
         }
 
@@ -81,11 +79,11 @@ class CommentServiceTest {
                     .willReturn(comments);
 
             // when
-            CommentResponses responses = commentService.showArticleComments(articleId, lastId, size);
+            List<Comment> responses = commentService.getArticleComments(articleId, lastId, size);
 
             // then
-            assertThat(responses.commentResponses()).hasSize(1)
-                    .extracting(CommentResponse::content)
+            assertThat(responses).hasSize(1)
+                    .extracting(Comment::getContent)
                     .containsExactly("첫 번째 게시글 댓글 1");
         }
 
@@ -101,11 +99,11 @@ class CommentServiceTest {
             given(commentRepository.findAllByMemberId(memberId, pageable)).willReturn(commentPage);
 
             // when
-            CommentResponses responses = commentService.showMemberComments(memberId, page, size);
+            Page<Comment> responses = commentService.getMemberComments(memberId, page, size);
 
             // then
-            assertThat(responses.commentResponses()).hasSize(1)
-                    .extracting(CommentResponse::content)
+            assertThat(responses).hasSize(1)
+                    .extracting(Comment::getContent)
                     .containsExactly("첫 번째 게시글 댓글 1");
         }
 
@@ -119,10 +117,10 @@ class CommentServiceTest {
             given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
 
             // when
-            CommentResponse response = commentService.updateComment(request, memberId, commentId);
+            Comment response = commentService.updateComment(request, memberId, commentId);
 
             // then
-            assertThat(response.content()).isEqualTo("수정된 게시글");
+            assertThat(response.getContent()).isEqualTo("수정된 게시글");
         }
 
         @Test
@@ -134,10 +132,10 @@ class CommentServiceTest {
             given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
 
             // when
-            CommentResponse response = commentService.deleteComment(memberId, commentId);
+            Comment response = commentService.deleteComment(memberId, commentId);
 
             // then
-            assertThat(response.content()).isEqualTo("첫 번째 게시글 댓글 1");
+            assertThat(response.getContent()).isEqualTo("첫 번째 게시글 댓글 1");
         }
 
         @Test
