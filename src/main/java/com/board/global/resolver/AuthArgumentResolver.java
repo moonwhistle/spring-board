@@ -1,5 +1,7 @@
 package com.board.global.resolver;
 
+import com.board.global.exception.GlobalErrorCode;
+import com.board.global.exception.GlobalException;
 import com.board.global.resolver.annotation.Auth;
 import com.board.member.Infrastructure.auth.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +18,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
 
     private static final String TOKEN_HEADER_NAME = "Authorization";
+    private static final String TOKEN_START_NAME = "BEARER";
     private static final int TOKEN_BODY_DELIMITER = 7;
 
     private final JwtTokenProvider tokenProvider;
@@ -30,7 +33,14 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         String tokenHeader = request.getHeader(TOKEN_HEADER_NAME);
+        validateToken(tokenHeader);
         String token = tokenHeader.substring(TOKEN_BODY_DELIMITER);
         return tokenProvider.extractMemberId(token);
+    }
+
+    private void validateToken(String token) {
+        if(token == null || !token.startsWith(TOKEN_START_NAME)) {
+            throw new GlobalException(GlobalErrorCode.NOT_FOUND_TOKEN);
+        }
     }
 }
