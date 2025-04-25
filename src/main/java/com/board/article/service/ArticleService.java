@@ -1,8 +1,5 @@
 package com.board.article.service;
 
-import com.board.article.controller.dto.request.ArticleRequest;
-import com.board.article.controller.dto.response.ArticleResponse;
-import com.board.article.controller.dto.response.ArticleResponses;
 import com.board.article.domain.Article;
 import com.board.article.exception.ArticleErrorCode;
 import com.board.article.exception.ArticleException;
@@ -26,79 +23,27 @@ public class ArticleService {
 
     private final ArticleRepository articleRepository;
 
-    public ArticleResponse createArticle(ArticleRequest request, Long memberId) {
-        Article article = new Article(memberId, request.title(), request.content());
+    public Article createArticle(Long memberId, String title, String content) {
+        Article article = new Article(memberId, title, content);
         articleRepository.save(article);
 
-        return new ArticleResponse(
-                article.getId(),
-                article.getMemberId(),
-                article.getTitle(),
-                article.getContent()
-        );
+        return article;
     }
 
-    public ArticleResponses showAllArticles(Long lastId, int size) {
-        List<ArticleResponse> articleResponses = getAllArticles(lastId, size).stream()
-                .map(article -> new ArticleResponse(
-                        article.getId(),
-                        article.getMemberId(),
-                        article.getTitle(),
-                        article.getContent()
-                ))
-                .toList();
-
-        return new ArticleResponses(articleResponses);
-    }
-
-    public ArticleResponse showArticle(Long articleId) {
-        Article article = getArticle(articleId);
-
-        return new ArticleResponse(
-                article.getId(),
-                article.getMemberId(),
-                article.getTitle(),
-                article.getContent()
-        );
-    }
-
-    public ArticleResponses showMemberArticles(Long memberId, int page, int size) {
-        List<ArticleResponse> articleResponses = getMemberArticles(memberId, page, size).stream()
-                .map(article -> new ArticleResponse(
-                        article.getId(),
-                        article.getMemberId(),
-                        article.getTitle(),
-                        article.getContent()
-                ))
-                .toList();
-
-        return new ArticleResponses(articleResponses);
-    }
-
-    public ArticleResponse updateArticle(ArticleRequest request, Long articleId, Long memberId) {
+    public Article updateArticle(Long articleId, Long memberId, String title, String content) {
         Article article = getArticle(articleId);
         article.validateAccessAboutArticle(memberId);
-        article.update(request.title(), request.content());
+        article.update(title, content);
 
-        return new ArticleResponse(
-                article.getId(),
-                article.getMemberId(),
-                article.getTitle(),
-                article.getContent()
-        );
+        return article;
     }
 
-    public ArticleResponse deleteArticle(Long articleId, Long memberId) {
+    public Article deleteArticle(Long articleId, Long memberId) {
         Article article = getArticle(articleId);
         article.validateAccessAboutArticle(memberId);
         articleRepository.delete(article);
 
-        return new ArticleResponse(
-                article.getId(),
-                article.getMemberId(),
-                article.getTitle(),
-                article.getContent()
-        );
+        return article;
     }
 
     @Transactional(readOnly = true)

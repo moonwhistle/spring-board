@@ -6,8 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.board.article.controller.dto.request.ArticleRequest;
-import com.board.article.controller.dto.response.ArticleResponse;
-import com.board.article.controller.dto.response.ArticleResponses;
 import com.board.article.domain.Article;
 import com.board.article.exception.ArticleErrorCode;
 import com.board.article.exception.ArticleException;
@@ -59,11 +57,11 @@ class ArticleServiceTest {
             given(articleRepository.save(any(Article.class))).willReturn(article);
 
             // when
-            ArticleResponse response = articleService.createArticle(request, memberId);
+            Article response = articleService.createArticle(memberId, request.title(), request.content());
 
             // then
             assertThat(response)
-                    .extracting(ArticleResponse::title, ArticleResponse::content, ArticleResponse::memberId)
+                    .extracting(Article::getTitle, Article::getContent, Article::getMemberId)
                     .containsExactly("제목1", "내용1", memberId);
         }
 
@@ -77,11 +75,11 @@ class ArticleServiceTest {
                     .willReturn(articles);
 
             // when
-            ArticleResponses responses = articleService.showAllArticles(lastId, size);
+            List<Article> responses = articleService.getAllArticles(lastId, size);
 
             // then
-            assertThat(responses.articleResponses()).hasSize(1)
-                    .extracting(ArticleResponse::title)
+            assertThat(responses).hasSize(1)
+                    .extracting(Article::getTitle)
                     .containsExactly("제목1");
         }
 
@@ -93,10 +91,10 @@ class ArticleServiceTest {
             given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
 
             // when
-            ArticleResponse response = articleService.showArticle(articleId);
+            Article response = articleService.getArticle(articleId);
 
             // then
-            assertThat(response.title()).isEqualTo("제목1");
+            assertThat(response.getTitle()).isEqualTo("제목1");
         }
 
         @Test
@@ -111,11 +109,11 @@ class ArticleServiceTest {
             given(articleRepository.findArticleByMemberId(memberId, pageable)).willReturn(articlePage);
 
             // when
-            ArticleResponses responses = articleService.showMemberArticles(memberId, page, size);
+            Page<Article> responses = articleService.getMemberArticles(memberId, page, size);
 
             // then
-            assertThat(responses.articleResponses()).hasSize(1)
-                    .extracting(ArticleResponse::title)
+            assertThat(responses).hasSize(1)
+                    .extracting(Article::getTitle)
                     .containsExactly("제목1");
         }
 
@@ -129,10 +127,10 @@ class ArticleServiceTest {
             given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
 
             // when
-            ArticleResponse response = articleService.updateArticle(request, articleId, memberId);
+            Article response = articleService.updateArticle(articleId, memberId, request.title(), request.content());
 
             // then
-            assertThat(response.title()).isEqualTo("수정된 제목");
+            assertThat(response.getTitle()).isEqualTo("수정된 제목");
         }
 
         @Test
@@ -144,10 +142,10 @@ class ArticleServiceTest {
             given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
 
             // when
-            ArticleResponse response = articleService.deleteArticle(articleId, memberId);
+            Article response = articleService.deleteArticle(articleId, memberId);
 
             // then
-            assertThat(response.title()).isEqualTo("제목1");
+            assertThat(response.getTitle()).isEqualTo("제목1");
         }
     }
 
@@ -177,7 +175,7 @@ class ArticleServiceTest {
             given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
 
             // when & then
-            assertThatThrownBy(() -> articleService.updateArticle(request, articleId, memberId))
+            assertThatThrownBy(() -> articleService.updateArticle(articleId, memberId, request.title(), request.content()))
                     .isInstanceOf(ArticleException.class)
                     .hasMessageContaining(ArticleErrorCode.FORBIDDEN_ACCESS_ARTICLE.message());
         }

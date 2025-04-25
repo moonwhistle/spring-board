@@ -11,8 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.board.article.controller.dto.request.ArticleRequest;
-import com.board.article.controller.dto.response.ArticleResponse;
-import com.board.article.controller.dto.response.ArticleResponses;
+import com.board.article.domain.Article;
 import com.board.article.service.ArticleService;
 import com.board.global.resolver.AuthArgumentResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,7 +22,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ArticleController.class)
@@ -41,15 +46,16 @@ class ArticleControllerTest {
     @MockBean
     private AuthArgumentResolver authArgumentResolver;
 
-    private ArticleResponse articleResponse;
-    private ArticleResponses articleResponses;
+    private Article articleResponse;
+    private List<Article> articleResponses;
 
     @BeforeEach
     void setUp() throws Exception {
         given(authArgumentResolver.supportsParameter(any())).willReturn(true);
         given(authArgumentResolver.resolveArgument(any(), any(), any(), any())).willReturn(1L);
-        articleResponse = new ArticleResponse(1L, 1L, "제목", "내용");
-        articleResponses = new ArticleResponses(List.of(articleResponse));
+        articleResponse = new Article(1L, "제목", "내용");
+        ReflectionTestUtils.setField(articleResponse, "id", 1L);
+        articleResponses = List.of(articleResponse);
     }
 
     @Test
@@ -57,7 +63,7 @@ class ArticleControllerTest {
     void createArticle() throws Exception {
         // given
         ArticleRequest request = new ArticleRequest("제목", "내용");
-        given(articleService.createArticle(any(), any())).willReturn(articleResponse);
+        given(articleService.createArticle(any(), any(), any())).willReturn(articleResponse);
 
         // when & then
         mockMvc.perform(post("/articles")
@@ -74,7 +80,7 @@ class ArticleControllerTest {
         // given
         Long lastId = 0L;
         int size = 5;
-        given(articleService.showAllArticles(lastId, size)).willReturn(articleResponses);
+        given(articleService.getAllArticles(lastId, size)).willReturn(articleResponses);
 
         // when & then
         mockMvc.perform(get("/articles")
@@ -88,7 +94,7 @@ class ArticleControllerTest {
     @DisplayName("게시글 하나를 조회한다.")
     void showArticle() throws Exception {
         // given
-        given(articleService.showArticle(1L)).willReturn(articleResponse);
+        given(articleService.getArticle(1L)).willReturn(articleResponse);
 
         // when & then
         mockMvc.perform(get("/articles/1"))
@@ -103,7 +109,9 @@ class ArticleControllerTest {
         Long memberId = 1L;
         int page = 0;
         int size = 10;
-        given(articleService.showMemberArticles(memberId, page, size)).willReturn(articleResponses);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Article> articlePage = new PageImpl<>(articleResponses, pageable, articleResponses.size());
+        given(articleService.getMemberArticles(memberId, page, size)).willReturn(articlePage);
 
         // when & then
         mockMvc.perform(get("/members/me/articles")
@@ -118,8 +126,8 @@ class ArticleControllerTest {
     void updateArticle() throws Exception {
         // given
         ArticleRequest request = new ArticleRequest("수정된 제목", "수정된 내용");
-        ArticleResponse response = new ArticleResponse(1L, 1L, "수정된 제목", "수정된 내용");
-        given(articleService.updateArticle(any(), any(), any())).willReturn(response);
+        Article response = new Article(1L, "수정된 제목", "수정된 내용");
+        given(articleService.updateArticle(any(), any(), any(), any())).willReturn(response);
 
         // when & then
         mockMvc.perform(patch("/articles/1")
