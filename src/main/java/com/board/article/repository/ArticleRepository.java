@@ -1,6 +1,7 @@
 package com.board.article.repository;
 
 import com.board.article.domain.Article;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,4 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     Page<Article> findArticleByMemberId(Long memberId, Pageable pageable);
+
+    List<Article> findByIdLessThanOrderByIdDesc(Long lastId, Pageable pageable);
 }

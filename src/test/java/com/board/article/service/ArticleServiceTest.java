@@ -71,10 +71,13 @@ class ArticleServiceTest {
         @DisplayName("모든 게시글을 조회한다.")
         void showAllArticles() {
             // given
-            given(articleRepository.findAll()).willReturn(articles);
+            Long lastId = 0L;
+            int size = 10;
+            given(articleRepository.findByIdLessThanOrderByIdDesc(lastId, PageRequest.of(0, size, Sort.by("id").descending())))
+                    .willReturn(articles);
 
             // when
-            ArticleResponses responses = articleService.showAllArticles();
+            ArticleResponses responses = articleService.showAllArticles(lastId, size);
 
             // then
             assertThat(responses.articleResponses()).hasSize(1)

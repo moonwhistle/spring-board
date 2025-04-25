@@ -37,8 +37,11 @@ public class ArticleController {
     }
 
     @GetMapping("/articles")
-    public ResponseEntity<ArticleResponses> showAllArticles() {
-        return ResponseEntity.ok(articleService.showAllArticles());
+    public ResponseEntity<ArticleResponses> showAllArticles(
+            @RequestParam Long lastId,
+            @RequestParam int size
+    ) {
+        return ResponseEntity.ok(articleService.showAllArticles(lastId, size));
     }
 
     @GetMapping("/articles/{articleId}")

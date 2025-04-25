@@ -22,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CommentService {
 
+    private static final String PAGE_SORT_DELIMITER = "id";
+    private static final int NO_OFFSET_PAGING_PAGE = 0;
+
     private final CommentRepository commentRepository;
 
     public CommentResponse createComment(CommentRequest request, Long memberId, Long articleId) {
@@ -35,8 +38,8 @@ public class CommentService {
         );
     }
 
-    public CommentResponses showArticleComments(Long articleId) {
-        List<CommentResponse> commentResponses = getArticleComments(articleId).stream()
+    public CommentResponses showArticleComments(Long articleId, Long lastId, int size) {
+        List<CommentResponse> commentResponses = getArticleComments(articleId, lastId, size).stream()
                 .map(comment -> new CommentResponse(
                         comment.getMemberId(),
                         comment.getArticleId(),
@@ -90,13 +93,14 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<Comment> getArticleComments(Long articleId) {
-        return commentRepository.findAllByArticleId(articleId);
+    public List<Comment> getArticleComments(Long articleId, Long lastId, int size) {
+        Pageable commentPageable = PageRequest.of(NO_OFFSET_PAGING_PAGE, size, Sort.by(PAGE_SORT_DELIMITER).descending());
+        return commentRepository.findByArticleIdAndIdLessThanOrderByIdDesc(articleId, lastId, commentPageable);
     }
 
     @Transactional(readOnly = true)
     public Page<Comment> getMemberComments(Long memberId, int page, int size) {
-        Pageable commentPageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Pageable commentPageable = PageRequest.of(page, size, Sort.by(PAGE_SORT_DELIMITER).descending());
         return commentRepository.findAllByMemberId(memberId, commentPageable);
     }
 

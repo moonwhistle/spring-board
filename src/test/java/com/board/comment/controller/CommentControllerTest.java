@@ -70,10 +70,14 @@ class CommentControllerTest {
     @DisplayName("게시글의 댓글들을 조회한다.")
     void showArticleComments() throws Exception {
         // given
-        given(commentService.showArticleComments(1L)).willReturn(responses);
+        Long lastId = 3L;
+        int size = 5;
+        given(commentService.showArticleComments(1L, lastId, size)).willReturn(responses);
 
         // when & then
-        mockMvc.perform(get("/articles/1/comments"))
+        mockMvc.perform(get("/articles/1/comments")
+                        .param("lastId", String.valueOf(lastId))
+                        .param("size", String.valueOf(size)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.commentResponses[0].content").value("댓글 내용"));
     }

@@ -66,3 +66,4 @@ public class GlobalException extends RuntimeException {
 ## 단점
 * OFFSET 100000 같이 뒤 페이지로 갈수록 느려짐 → 인덱스가 있어도 느림
 * 페이징 도중 데이터가 추가/삭제되면 순서가 뒤틀릴 수 있음 (같은 댓글이 여러 번 보이거나 사라짐)
+

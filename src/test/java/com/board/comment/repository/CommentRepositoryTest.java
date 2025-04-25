@@ -23,18 +23,20 @@ class CommentRepositoryTest {
     private CommentRepository commentRepository;
 
     @Test
-    @DisplayName("게시글 아이디에 해당하는 모든 댓글을 조회한다.")
+    @DisplayName("lastId보다 작은 ID를 가진 댓글을 내림차순으로 가져온다. (no-offset-paging)")
     void findAllByArticleId() {
         // given
         Long articleId = 1L;
+        Long lastId = 3L;
+        Pageable pageable = PageRequest.of(0, 5, Sort.by("id").descending());
 
         // when
-        List<Comment> comments = commentRepository.findAllByArticleId(articleId);
+        List<Comment> comments = commentRepository.findByArticleIdAndIdLessThanOrderByIdDesc(articleId, lastId, pageable);
 
         // then
         assertThat(comments).hasSize(2)
                 .extracting(Comment::getContent)
-                .containsExactly("첫 번째 게시글 댓글 1", "첫 번째 게시글 댓글 2");
+                .containsExactly("첫 번째 게시글 댓글 2", "첫 번째 게시글 댓글 1");
     }
 
     @Test

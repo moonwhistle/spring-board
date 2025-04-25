@@ -22,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ArticleService {
 
+    private static final String PAGE_SORT_DELIMITER = "id";
+    private static final int NO_OFFSET_PAGING_PAGE = 0;
+
     private final ArticleRepository articleRepository;
 
     public ArticleResponse createArticle(ArticleRequest request, Long memberId) {
@@ -36,8 +39,8 @@ public class ArticleService {
         );
     }
 
-    public ArticleResponses showAllArticles() {
-        List<ArticleResponse> articleResponses = getAllArticles().stream()
+    public ArticleResponses showAllArticles(Long lastId, int size) {
+        List<ArticleResponse> articleResponses = getAllArticles(lastId, size).stream()
                 .map(article -> new ArticleResponse(
                         article.getId(),
                         article.getMemberId(),
@@ -106,8 +109,9 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public List<Article> getAllArticles() {
-        return articleRepository.findAll();
+    public List<Article> getAllArticles(Long lastId, int size) {
+        Pageable articlePageable = PageRequest.of(NO_OFFSET_PAGING_PAGE, size, Sort.by(PAGE_SORT_DELIMITER).descending());
+        return articleRepository.findByIdLessThanOrderByIdDesc(lastId, articlePageable);
     }
 
     @Transactional(readOnly = true)
@@ -118,7 +122,7 @@ public class ArticleService {
 
     @Transactional(readOnly = true)
     public Page<Article> getMemberArticles(Long memberId, int page, int size) {
-        Pageable articlePageable = PageRequest.of(page, size, Sort.by("id").descending()); // 최신 게시글 부터
+        Pageable articlePageable = PageRequest.of(page, size, Sort.by(PAGE_SORT_DELIMITER).descending()); // 최신 게시글 부터
         return articleRepository.findArticleByMemberId(memberId, articlePageable);
     }
 }

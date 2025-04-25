@@ -74,10 +74,14 @@ class CommentServiceTest {
         void showArticleComments() {
             // given
             Long articleId = 1L;
-            given(commentRepository.findAllByArticleId(articleId)).willReturn(comments);
+            Long lastId = 0L;
+            int size = 5;
+            Pageable pageable = PageRequest.of(0, size, Sort.by("id").descending());
+            given(commentRepository.findByArticleIdAndIdLessThanOrderByIdDesc(articleId, lastId, pageable))
+                    .willReturn(comments);
 
             // when
-            CommentResponses responses = commentService.showArticleComments(articleId);
+            CommentResponses responses = commentService.showArticleComments(articleId, lastId, size);
 
             // then
             assertThat(responses.commentResponses()).hasSize(1)

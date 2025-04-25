@@ -72,10 +72,14 @@ class ArticleControllerTest {
     @DisplayName("모든 게시글을 조회한다.")
     void showAllArticles() throws Exception {
         // given
-        given(articleService.showAllArticles()).willReturn(articleResponses);
+        Long lastId = 0L;
+        int size = 5;
+        given(articleService.showAllArticles(lastId, size)).willReturn(articleResponses);
 
         // when & then
-        mockMvc.perform(get("/articles"))
+        mockMvc.perform(get("/articles")
+                        .param("lastId", String.valueOf(lastId))
+                        .param("size", String.valueOf(size)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.articleResponses[0].articleId").value(1L));
     }

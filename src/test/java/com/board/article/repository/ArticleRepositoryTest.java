@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.board.article.domain.Article;
 import com.board.article.loader.ArticleTestDataLoader;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,5 +36,21 @@ class ArticleRepositoryTest {
         assertThat(articles).hasSize(2);
         assertThat(articles).extracting(Article::getTitle)
                 .containsExactly("신형만에 관하여", "신짱구");
+    }
+
+    @Test
+    @DisplayName("lastId보다 작은 ID를 가진 게시글을 내림차순으로 가져온다. (no-offset-paging)")
+    void findByIdLessThanOrderByIdDesc() {
+        // given
+        Long lastId = 2L;
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
+
+        // when
+        List<Article> articles = articleRepository.findByIdLessThanOrderByIdDesc(lastId, pageable);
+
+        // then
+        assertThat(articles).hasSize(1);
+        assertThat(articles).extracting(Article::getContent)
+                .containsExactly("아내는 신봉선");
     }
 }
