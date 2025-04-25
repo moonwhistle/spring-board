@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.board.member.Infrastructure.auth.JwtTokenProvider;
+import com.board.member.Infrastructure.JwtTokenProvider;
 import com.board.member.controller.auth.dto.request.LoginRequest;
 import com.board.member.controller.auth.dto.request.SignUpRequest;
 import com.board.member.controller.auth.dto.response.SignUpResponse;

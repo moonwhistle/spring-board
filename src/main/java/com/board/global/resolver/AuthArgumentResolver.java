@@ -3,7 +3,7 @@ package com.board.global.resolver;
 import com.board.global.exception.GlobalErrorCode;
 import com.board.global.exception.GlobalException;
 import com.board.global.resolver.annotation.Auth;
-import com.board.member.Infrastructure.auth.JwtTokenProvider;
+import com.board.member.Infrastructure.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;

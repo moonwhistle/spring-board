@@ -14,22 +14,21 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     private static final String TOKEN_HEADER_NAME = "Authorization";
     private static final String TOKEN_START_NAME = "Bearer ";
+    private static final String ALLOW_HTTP_METHOD = "GET";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if(isRestrictHttpMethod(request)) {
-            String tokenHeader = Optional.ofNullable(request.getHeader(TOKEN_HEADER_NAME))
-                    .orElseThrow(() -> new GlobalException(GlobalErrorCode.NOT_FOUND_TOKEN));
-
-            return tokenHeader.startsWith(TOKEN_START_NAME);
+        if(isAllowHttpMethod(request)) {
+            return true;
         }
 
-        return true;
+        String tokenHeader = Optional.ofNullable(request.getHeader(TOKEN_HEADER_NAME))
+                .orElseThrow(() -> new GlobalException(GlobalErrorCode.NOT_FOUND_TOKEN));
+
+        return tokenHeader.startsWith(TOKEN_START_NAME);
     }
 
-    private boolean isRestrictHttpMethod(HttpServletRequest request) {
-        return Objects.equals(request.getMethod(), "POST") ||
-                Objects.equals(request.getMethod(), "DELETE") ||
-                Objects.equals(request.getMethod(), "PATCH");
+    private boolean isAllowHttpMethod(HttpServletRequest request) {
+        return Objects.equals(request.getMethod(), ALLOW_HTTP_METHOD);
     }
 }

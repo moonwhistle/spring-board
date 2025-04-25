@@ -1,4 +1,4 @@
-package com.board.member.Infrastructure.auth;
+package com.board.member.Infrastructure;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
