@@ -8,7 +8,6 @@ import com.board.comment.exception.CommentErrorCode;
 import com.board.comment.exception.CommentException;
 import com.board.comment.repository.CommentRepository;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -64,7 +63,7 @@ public class CommentService {
 
     public CommentResponse updateComment(CommentRequest request, Long memberId, Long commentId) {
         Comment comment = getComment(commentId);
-        validateAccessAboutComment(memberId, comment);
+        comment.validateAccessAboutComment(memberId);
         comment.update(request.content());
 
         return new CommentResponse(
@@ -76,7 +75,7 @@ public class CommentService {
 
     public CommentResponse deleteComment(Long memberId, Long commentId) {
         Comment comment = getComment(commentId);
-        validateAccessAboutComment(memberId, comment);
+        comment.validateAccessAboutComment(memberId);
         commentRepository.delete(comment);
 
         return new CommentResponse(
@@ -84,12 +83,6 @@ public class CommentService {
                 comment.getArticleId(),
                 comment.getContent()
         );
-    }
-
-    private void validateAccessAboutComment(Long memberId, Comment comment) {
-        if (!Objects.equals(comment.getMemberId(), memberId)) {
-            throw new CommentException(CommentErrorCode.FORBIDDEN_ACCESS_COMMENT);
-        }
     }
 
     @Transactional(readOnly = true)

@@ -1,11 +1,14 @@
 package com.board.article.domain;
 
+import com.board.article.exception.ArticleErrorCode;
+import com.board.article.exception.ArticleException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,6 +45,12 @@ public class Article {
         }
         if (content != null) {
             this.content = content;
+        }
+    }
+
+    public void validateAccessAboutArticle(Long memberId) {
+        if(!Objects.equals(this.memberId, memberId)) {
+            throw new ArticleException(ArticleErrorCode.FORBIDDEN_ACCESS_ARTICLE);
         }
     }
 }

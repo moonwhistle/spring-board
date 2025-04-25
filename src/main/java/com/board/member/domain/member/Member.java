@@ -1,13 +1,11 @@
 package com.board.member.domain.member;
 
-import com.board.member.domain.member.exception.NotMatchPasswordException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
-import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -56,12 +54,6 @@ public class Member {
         }
         if (memberPassword != null) {
             this.memberPassword = memberPassword;
-        }
-    }
-
-    public void checkPassword(String password) {
-        if(!Objects.equals(memberPassword, password)) {
-            throw new NotMatchPasswordException();
         }
     }
 }

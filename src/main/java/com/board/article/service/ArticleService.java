@@ -8,7 +8,6 @@ import com.board.article.exception.ArticleErrorCode;
 import com.board.article.exception.ArticleException;
 import com.board.article.repository.ArticleRepository;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -78,7 +77,7 @@ public class ArticleService {
 
     public ArticleResponse updateArticle(ArticleRequest request, Long articleId, Long memberId) {
         Article article = getArticle(articleId);
-        validateAccessAboutArticle(memberId, article);
+        article.validateAccessAboutArticle(memberId);
         article.update(request.title(), request.content());
 
         return new ArticleResponse(
@@ -91,7 +90,7 @@ public class ArticleService {
 
     public ArticleResponse deleteArticle(Long articleId, Long memberId) {
         Article article = getArticle(articleId);
-        validateAccessAboutArticle(memberId, article);
+        article.validateAccessAboutArticle(memberId);
         articleRepository.delete(article);
 
         return new ArticleResponse(
@@ -100,12 +99,6 @@ public class ArticleService {
                 article.getTitle(),
                 article.getContent()
         );
-    }
-
-    private void validateAccessAboutArticle(Long memberId, Article article) {
-        if(!Objects.equals(article.getMemberId(), memberId)) {
-            throw new ArticleException(ArticleErrorCode.FORBIDDEN_ACCESS_ARTICLE);
-        }
     }
 
     @Transactional(readOnly = true)
@@ -122,7 +115,7 @@ public class ArticleService {
 
     @Transactional(readOnly = true)
     public Page<Article> getMemberArticles(Long memberId, int page, int size) {
-        Pageable articlePageable = PageRequest.of(page, size, Sort.by(PAGE_SORT_DELIMITER).descending()); // 최신 게시글 부터
+        Pageable articlePageable = PageRequest.of(page, size, Sort.by(PAGE_SORT_DELIMITER).descending());
         return articleRepository.findArticleByMemberId(memberId, articlePageable);
     }
 }

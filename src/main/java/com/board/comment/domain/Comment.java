@@ -1,10 +1,13 @@
 package com.board.comment.domain;
 
+import com.board.comment.exception.CommentErrorCode;
+import com.board.comment.exception.CommentException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,6 +39,12 @@ public class Comment {
     public void update(String content) {
         if (content != null) {
             this.content = content;
+        }
+    }
+
+    public void validateAccessAboutComment(Long memberId) {
+        if(!Objects.equals(this.memberId, memberId)) {
+            throw new CommentException(CommentErrorCode.FORBIDDEN_ACCESS_COMMENT);
         }
     }
 }
