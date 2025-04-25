@@ -82,10 +82,14 @@ class CommentControllerTest {
     @DisplayName("회원이 작성한 댓글들을 조회한다.")
     void showMemberComments() throws Exception {
         // given
-        given(commentService.showMemberArticles(1L)).willReturn(responses);
+        int page = 0;
+        int size = 10;
+        given(commentService.showMemberComments(1L, page, size)).willReturn(responses);
 
         // when & then
-        mockMvc.perform(get("/members/me/comments"))
+        mockMvc.perform(get("/members/me/comments")
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.commentResponses[0].content").value("댓글 내용"));
     }

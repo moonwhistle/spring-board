@@ -53,3 +53,16 @@ public class GlobalException extends RuntimeException {
 * BaseException 생성, 그리고 이 클래스를 이용한  BaseExceptionHandler 생성 -> 핸들러 하나만 사용 가능
 * MemberException, ArticleException 등등 BaseException 을 상속받아 BaseExceptionHandler 에서 에러 처리 가능
 * ErrorCode 추가될때마다 exception 을 추가할 필요가 없어짐.
+
+---
+
+# Offset Paging
+
+--- 
+## 장점
+* 구현이 쉽다 -> JPA에서 바로 Pageable 객체로 페이징 가능
+* 페이지 번호가 있는 프론트 구현 시, 잘 맞는다.
+
+## 단점
+* OFFSET 100000 같이 뒤 페이지로 갈수록 느려짐 → 인덱스가 있어도 느림
+* 페이징 도중 데이터가 추가/삭제되면 순서가 뒤틀릴 수 있음 (같은 댓글이 여러 번 보이거나 사라짐)

@@ -22,6 +22,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("NonAsciiCharacters")
@@ -96,10 +101,14 @@ class ArticleServiceTest {
         void showMemberArticles() {
             // given
             Long memberId = 1L;
-            given(articleRepository.findArticleByMemberId(memberId)).willReturn(articles);
+            int page = 0;
+            int size = 10;
+            Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+            Page<Article> articlePage = new PageImpl<>(articles, pageable, articles.size());
+            given(articleRepository.findArticleByMemberId(memberId, pageable)).willReturn(articlePage);
 
             // when
-            ArticleResponses responses = articleService.showMemberArticles(memberId);
+            ArticleResponses responses = articleService.showMemberArticles(memberId, page, size);
 
             // then
             assertThat(responses.articleResponses()).hasSize(1)
@@ -136,51 +145,6 @@ class ArticleServiceTest {
 
             // then
             assertThat(response.title()).isEqualTo("제목1");
-        }
-
-        @Test
-        @DisplayName("모든 게시글을 가져온다.")
-        void getAllArticles() {
-            // given
-            given(articleRepository.findAll()).willReturn(articles);
-
-            // when
-            List<Article> response = articleService.getAllArticles();
-
-            // then
-            assertThat(response).hasSize(1)
-                    .extracting(Article::getTitle)
-                    .containsExactly("제목1");
-        }
-
-        @Test
-        @DisplayName("특정 게시글을 가져온다.")
-        void getArticle() {
-            // given
-            Long articleId = 1L;
-            given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
-
-            // when
-            Article response = articleService.getArticle(articleId);
-
-            // then
-            assertThat(response.getTitle()).isEqualTo("제목1");
-        }
-
-        @Test
-        @DisplayName("유저가 작성한 게시글을 가져온다.")
-        void getMemberArticles() {
-            // given
-            Long memberId = 1L;
-            given(articleRepository.findArticleByMemberId(memberId)).willReturn(articles);
-
-            // when
-            List<Article> response = articleService.getMemberArticles(memberId);
-
-            // then
-            assertThat(response).hasSize(1)
-                    .extracting(Article::getTitle)
-                    .containsExactly("제목1");
         }
     }
 

@@ -10,6 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @DataJpaTest
 @Import(CommentTestDataLoader.class)
@@ -34,13 +38,14 @@ class CommentRepositoryTest {
     }
 
     @Test
-    @DisplayName("멤버 아이디에 해당하는 모든 댓글을 조회한다.")
+    @DisplayName("멤버 아이디에 해당하는 모든 댓글을 조회한다.(offset-paging)")
     void findAllByMemberId() {
         // given
         Long memberId = 1L;
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
 
         // when
-        List<Comment> comments = commentRepository.findAllByMemberId(memberId);
+        Page<Comment> comments = commentRepository.findAllByMemberId(memberId, pageable);
 
         // then
         assertThat(comments).hasSize(4)

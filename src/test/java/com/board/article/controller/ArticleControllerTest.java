@@ -96,10 +96,15 @@ class ArticleControllerTest {
     @DisplayName("회원의 게시글을 조회한다.")
     void showMemberArticles() throws Exception {
         // given
-        given(articleService.showMemberArticles(1L)).willReturn(articleResponses);
+        Long memberId = 1L;
+        int page = 0;
+        int size = 10;
+        given(articleService.showMemberArticles(memberId, page, size)).willReturn(articleResponses);
 
         // when & then
-        mockMvc.perform(get("/members/me/articles"))
+        mockMvc.perform(get("/members/me/articles")
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.articleResponses[0].articleId").value(1L));
     }

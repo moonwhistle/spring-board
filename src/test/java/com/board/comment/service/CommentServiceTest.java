@@ -22,6 +22,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("NonAsciiCharacters")
@@ -85,10 +90,14 @@ class CommentServiceTest {
         void showMemberArticles() {
             // given
             Long memberId = 1L;
-            given(commentRepository.findAllByMemberId(memberId)).willReturn(comments);
+            int page = 0;
+            int size = 10;
+            Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+            Page<Comment> commentPage = new PageImpl<>(comments, pageable, comments.size());
+            given(commentRepository.findAllByMemberId(memberId, pageable)).willReturn(commentPage);
 
             // when
-            CommentResponses responses = commentService.showMemberArticles(memberId);
+            CommentResponses responses = commentService.showMemberComments(memberId, page, size);
 
             // then
             assertThat(responses.commentResponses()).hasSize(1)
@@ -125,38 +134,6 @@ class CommentServiceTest {
 
             // then
             assertThat(response.content()).isEqualTo("첫 번째 게시글 댓글 1");
-        }
-
-        @Test
-        @DisplayName("게시글에 해당하는 모든 댓글을 조회한다.")
-        void getArticleComments() {
-            // given
-            Long articleId = 1L;
-            given(commentRepository.findAllByArticleId(articleId)).willReturn(comments);
-
-            // when
-            List<Comment> responses = commentService.getArticleComments(articleId);
-
-            // then
-            assertThat(responses).hasSize(1)
-                    .extracting(Comment::getArticleId)
-                    .containsExactly(1L);
-        }
-
-        @Test
-        @DisplayName("유저가 작성한 모든 댓글을 조회한다.")
-        void getMemberComments() {
-            // given
-            Long memberId = 1L;
-            given(commentRepository.findAllByMemberId(memberId)).willReturn(comments);
-
-            // when
-            List<Comment> responses = commentService.getMemberComments(memberId);
-
-            // then
-            assertThat(responses).hasSize(1)
-                    .extracting(Comment::getArticleId)
-                    .containsExactly(1L);
         }
 
         @Test

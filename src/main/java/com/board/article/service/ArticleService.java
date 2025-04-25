@@ -10,6 +10,10 @@ import com.board.article.repository.ArticleRepository;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,8 +60,8 @@ public class ArticleService {
         );
     }
 
-    public ArticleResponses showMemberArticles(Long memberId) {
-        List<ArticleResponse> articleResponses = getMemberArticles(memberId).stream()
+    public ArticleResponses showMemberArticles(Long memberId, int page, int size) {
+        List<ArticleResponse> articleResponses = getMemberArticles(memberId, page, size).stream()
                 .map(article -> new ArticleResponse(
                         article.getId(),
                         article.getMemberId(),
@@ -113,7 +117,8 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public List<Article> getMemberArticles(Long memberId) {
-        return articleRepository.findArticleByMemberId(memberId);
+    public Page<Article> getMemberArticles(Long memberId, int page, int size) {
+        Pageable articlePageable = PageRequest.of(page, size, Sort.by("id").descending()); // 최신 게시글 부터
+        return articleRepository.findArticleByMemberId(memberId, articlePageable);
     }
 }

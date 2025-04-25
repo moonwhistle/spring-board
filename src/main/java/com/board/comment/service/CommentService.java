@@ -10,6 +10,10 @@ import com.board.comment.repository.CommentRepository;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,8 +47,8 @@ public class CommentService {
         return new CommentResponses(commentResponses);
     }
 
-    public CommentResponses showMemberArticles(Long memberId) {
-        List<CommentResponse> commentResponses = getMemberComments(memberId).stream()
+    public CommentResponses showMemberComments(Long memberId, int page, int size) {
+        List<CommentResponse> commentResponses = getMemberComments(memberId, page, size).stream()
                 .map(comment -> new CommentResponse(
                         comment.getMemberId(),
                         comment.getArticleId(),
@@ -91,8 +95,9 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<Comment> getMemberComments(Long memberId) {
-        return commentRepository.findAllByMemberId(memberId);
+    public Page<Comment> getMemberComments(Long memberId, int page, int size) {
+        Pageable commentPageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return commentRepository.findAllByMemberId(memberId, commentPageable);
     }
 
     @Transactional(readOnly = true)
