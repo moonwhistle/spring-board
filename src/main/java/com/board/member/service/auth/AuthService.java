@@ -9,6 +9,7 @@ import com.board.member.exception.MemberErrorCode;
 import com.board.member.exception.MemberException;
 import com.board.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,11 +20,16 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     public SignUpResponse signUp(SignUpRequest request) {
         checkDuplicateLoginId(request.loginId());
         checkDuplicateNickName(request.memberNickName());
-        Member member = new Member(request.memberName(), request.memberNickName(), request.loginId(), request.password());
+        Member member = new Member(
+                request.memberName(),
+                request.memberNickName(),
+                request.loginId(),
+                passwordEncoder.encode(request.password()));
         memberRepository.save(member);
 
         return new SignUpResponse(member.getId(), tokenProvider.create(member.getId()));
@@ -32,7 +38,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public String login(LoginRequest request) {
         Member member = findMemberByLoginId(request.loginId());
-        member.checkPassword(request.password());
+        checkPassword(request.password(), member.getMemberPassword());
 
         return tokenProvider.create(member.getId());
     }
@@ -42,14 +48,20 @@ public class AuthService {
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_MATCH_LOGIN_ID));
     }
 
+    private void checkPassword(String requestPassword, String password) {
+        if (!passwordEncoder.matches(requestPassword, password)) {
+            throw new MemberException(MemberErrorCode.NOT_MATCH_PASSWORD);
+        }
+    }
+
     private void checkDuplicateLoginId(String loginId) {
-        if(memberRepository.existsByMemberLoginId(loginId)) {
+        if (memberRepository.existsByMemberLoginId(loginId)) {
             throw new MemberException(MemberErrorCode.DUPLICATE_LOGIN_ID);
         }
     }
 
     private void checkDuplicateNickName(String memberNickName) {
-        if(memberRepository.existsByMemberNickName(memberNickName)) {
+        if (memberRepository.existsByMemberNickName(memberNickName)) {
             throw new MemberException(MemberErrorCode.DUPLICATE_NICKNAME);
         }
     }
