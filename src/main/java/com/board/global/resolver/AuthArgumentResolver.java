@@ -18,7 +18,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
 
     private static final String TOKEN_HEADER_NAME = "Authorization";
-    private static final String TOKEN_START_NAME = "BEARER";
+    private static final String TOKEN_START_NAME = "Bearer ";
     private static final int TOKEN_BODY_DELIMITER = 7;
 
     private final JwtTokenProvider tokenProvider;

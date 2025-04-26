@@ -1,5 +1,7 @@
 package com.board.comment.service;
 
+import com.board.article.domain.Article;
+import com.board.article.service.ArticleService;
 import com.board.comment.controller.dto.request.CommentRequest;
 import com.board.comment.domain.Comment;
 import com.board.comment.exception.CommentErrorCode;
@@ -23,9 +25,11 @@ public class CommentService {
     private static final int NO_OFFSET_PAGING_PAGE = 0;
 
     private final CommentRepository commentRepository;
+    private final ArticleService articleService;
 
     public Comment createComment(String content, Long memberId, Long articleId) {
-        Comment comment = new Comment(memberId, articleId, content);
+        Article article = articleService.getArticle(articleId);
+        Comment comment = new Comment(memberId, article, content);
         commentRepository.save(comment);
 
         return comment;

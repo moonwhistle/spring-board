@@ -33,7 +33,7 @@ public class CommentController {
         Comment comment = commentService.createComment(request.content(), memberId, articleId);
         CommentResponse response = new CommentResponse(
                 comment.getMemberId(),
-                comment.getArticleId(),
+                comment.getArticle().getId(),
                 comment.getContent()
         );
 
@@ -55,7 +55,7 @@ public class CommentController {
         List<CommentResponse> responses = comments.stream()
                 .map(comment -> new CommentResponse(
                         comment.getMemberId(),
-                        comment.getArticleId(),
+                        comment.getArticle().getId(),
                         comment.getContent()
                 )).toList();
 
@@ -72,7 +72,7 @@ public class CommentController {
         List<CommentResponse> responses = comments.stream()
                 .map(comment -> new CommentResponse(
                         comment.getMemberId(),
-                        comment.getArticleId(),
+                        comment.getArticle().getId(),
                         comment.getContent()
                 )).toList();
 
@@ -85,7 +85,7 @@ public class CommentController {
         Comment comment = commentService.updateComment(request, memberId, commentId);
         CommentResponse response = new CommentResponse(
                 comment.getMemberId(),
-                comment.getArticleId(),
+                comment.getArticle().getId(),
                 comment.getContent()
         );
 
@@ -97,7 +97,7 @@ public class CommentController {
         Comment comment = commentService.deleteComment(memberId, commentId);
         CommentResponse response = new CommentResponse(
                 comment.getMemberId(),
-                comment.getArticleId(),
+                comment.getArticle().getId(),
                 comment.getContent()
         );
 

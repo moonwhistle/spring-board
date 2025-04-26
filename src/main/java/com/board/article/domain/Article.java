@@ -2,12 +2,17 @@ package com.board.article.domain;
 
 import com.board.article.exception.ArticleErrorCode;
 import com.board.article.exception.ArticleException;
+import com.board.comment.domain.Comment;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,6 +37,10 @@ public class Article {
     @Column(nullable = false)
     @NotBlank
     private String content;
+
+    @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE)
+    private List<Comment> comments = new ArrayList<>();
+
 
     public Article(Long memberId, String title, String content) {
         this.memberId = memberId;

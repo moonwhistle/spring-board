@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.board.article.domain.Article;
 import com.board.comment.controller.dto.request.CommentRequest;
 import com.board.comment.domain.Comment;
 import com.board.comment.service.CommentService;
@@ -27,6 +28,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(CommentController.class)
@@ -46,10 +48,12 @@ class CommentControllerTest {
 
     private Comment response;
     private List<Comment> responses;
-
+    private Article article;
     @BeforeEach
     void setUp() throws Exception {
-        response = new Comment(1L, 1L, "댓글 내용");
+        article = new Article(1L, "제목", "내용");
+        ReflectionTestUtils.setField(article, "id", 1L);
+        response = new Comment(1L, article, "댓글 내용");
         responses = List.of(response);
         given(authArgumentResolver.supportsParameter(any())).willReturn(true);
         given(authArgumentResolver.resolveArgument(any(), any(), any(), any())).willReturn(1L);
@@ -109,7 +113,7 @@ class CommentControllerTest {
     void updateComment() throws Exception {
         // given
         CommentRequest request = new CommentRequest("수정된 댓글");
-        Comment updatedResponse = new Comment(1L, 1L,"수정된 댓글");
+        Comment updatedResponse = new Comment(1L, article,"수정된 댓글");
         given(commentService.updateComment(any(), any(), any())).willReturn(updatedResponse);
 
         // when & then
