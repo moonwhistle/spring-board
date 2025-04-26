@@ -4,7 +4,9 @@ import com.board.member.domain.member.Member;
 import com.board.member.exception.MemberErrorCode;
 import com.board.member.exception.MemberException;
 import com.board.member.repository.MemberRepository;
+import com.board.member.service.member.event.MemberDeletedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Member updateMember(Long memberId, String requestName, String requestNickName, String requestId, String requestPassword) {
         Member member = getMember(memberId);
@@ -25,6 +28,7 @@ public class MemberService {
     public Member deleteMember(Long memberId) {
         Member member = getMember(memberId);
         memberRepository.delete(member);
+        eventPublisher.publishEvent(new MemberDeletedEvent(memberId));
 
         return member;
     }

@@ -51,6 +51,10 @@ public class CommentService {
         return comment;
     }
 
+    public void updateMemberIdToNull(Long memberId) {
+        commentRepository.updateMemberIdToNull(memberId);
+    }
+
     @Transactional(readOnly = true)
     public List<Comment> getArticleComments(Long articleId, Long lastId, int size) {
         Pageable commentPageable = PageRequest.of(NO_OFFSET_PAGING_PAGE, size, Sort.by(PAGE_SORT_DELIMITER).descending());

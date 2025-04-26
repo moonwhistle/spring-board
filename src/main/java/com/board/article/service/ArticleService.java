@@ -46,6 +46,10 @@ public class ArticleService {
         return article;
     }
 
+    public void updateMemberIdToNUll(Long memberId) {
+        articleRepository.updateMemberIdToNUll(memberId);
+    }
+
     @Transactional(readOnly = true)
     public List<Article> getAllArticles(Long lastId, int size) {
         Pageable articlePageable = PageRequest.of(NO_OFFSET_PAGING_PAGE, size, Sort.by(PAGE_SORT_DELIMITER).descending());
