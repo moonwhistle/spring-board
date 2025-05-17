@@ -51,7 +51,7 @@ public class CommentController {
             @RequestParam Long lastId,
             @RequestParam int size
     ) {
-        List<Comment> comments = commentService.getArticleComments(articleId, lastId, size);
+        List<Comment> comments = commentService.findArticleComments(articleId, lastId, size);
         List<CommentResponse> responses = comments.stream()
                 .map(comment -> new CommentResponse(
                         comment.getMemberId(),
@@ -68,7 +68,7 @@ public class CommentController {
             @RequestParam int page,
             @RequestParam int size
     ) {
-        Page<Comment> comments = commentService.getMemberComments(memberId, page, size);
+        Page<Comment> comments = commentService.findMemberComments(memberId, page, size);
         List<CommentResponse> responses = comments.stream()
                 .map(comment -> new CommentResponse(
                         comment.getMemberId(),

@@ -19,14 +19,14 @@ public class MemberService {
     private final ApplicationEventPublisher eventPublisher;
 
     public Member updateMember(Long memberId, String requestName, String requestNickName, String requestId, String requestPassword) {
-        Member member = getMember(memberId);
+        Member member = findMember(memberId);
         member.update(requestName, requestNickName, requestId, requestPassword);
 
         return member;
     }
 
     public Member deleteMember(Long memberId) {
-        Member member = getMember(memberId);
+        Member member = findMember(memberId);
         memberRepository.delete(member);
         eventPublisher.publishEvent(new MemberDeletedEvent(memberId));
 
@@ -34,7 +34,7 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public Member getMember(Long memberId) {
+    public Member findMember(Long memberId) {
         return memberRepository.findMemberById(memberId)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
     }

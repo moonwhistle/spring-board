@@ -28,7 +28,7 @@ public class CommentService {
     private final ArticleService articleService;
 
     public Comment createComment(String content, Long memberId, Long articleId) {
-        Article article = articleService.getArticle(articleId);
+        Article article = articleService.findArticle(articleId);
         Comment comment = new Comment(memberId, article, content);
         commentRepository.save(comment);
 
@@ -36,7 +36,7 @@ public class CommentService {
     }
 
     public Comment updateComment(CommentRequest request, Long memberId, Long commentId) {
-        Comment comment = getComment(commentId);
+        Comment comment = findComment(commentId);
         comment.validateAccessAboutComment(memberId);
         comment.update(request.content());
 
@@ -44,7 +44,7 @@ public class CommentService {
     }
 
     public Comment deleteComment(Long memberId, Long commentId) {
-        Comment comment = getComment(commentId);
+        Comment comment = findComment(commentId);
         comment.validateAccessAboutComment(memberId);
         commentRepository.delete(comment);
 
@@ -56,19 +56,19 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<Comment> getArticleComments(Long articleId, Long lastId, int size) {
+    public List<Comment> findArticleComments(Long articleId, Long lastId, int size) {
         Pageable commentPageable = PageRequest.of(NO_OFFSET_PAGING_PAGE, size, Sort.by(PAGE_SORT_DELIMITER).descending());
         return commentRepository.findByArticleIdAndIdLessThanOrderByIdDesc(articleId, lastId, commentPageable);
     }
 
     @Transactional(readOnly = true)
-    public Page<Comment> getMemberComments(Long memberId, int page, int size) {
+    public Page<Comment> findMemberComments(Long memberId, int page, int size) {
         Pageable commentPageable = PageRequest.of(page, size, Sort.by(PAGE_SORT_DELIMITER).descending());
         return commentRepository.findAllByMemberId(memberId, commentPageable);
     }
 
     @Transactional(readOnly = true)
-    public Comment getComment(Long commentId) {
+    public Comment findComment(Long commentId) {
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentException(CommentErrorCode.NOT_FOUND_COMMENT));
     }

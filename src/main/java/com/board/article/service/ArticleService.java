@@ -31,7 +31,7 @@ public class ArticleService {
     }
 
     public Article updateArticle(Long articleId, Long memberId, String title, String content) {
-        Article article = getArticle(articleId);
+        Article article = findArticle(articleId);
         article.validateAccessAboutArticle(memberId);
         article.update(title, content);
 
@@ -39,7 +39,7 @@ public class ArticleService {
     }
 
     public Article deleteArticle(Long articleId, Long memberId) {
-        Article article = getArticle(articleId);
+        Article article = findArticle(articleId);
         article.validateAccessAboutArticle(memberId);
         articleRepository.delete(article);
 
@@ -51,19 +51,19 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public List<Article> getAllArticles(Long lastId, int size) {
+    public List<Article> findAllArticles(Long lastId, int size) {
         Pageable articlePageable = PageRequest.of(NO_OFFSET_PAGING_PAGE, size, Sort.by(PAGE_SORT_DELIMITER).descending());
         return articleRepository.findByIdLessThanOrderByIdDesc(lastId, articlePageable);
     }
 
     @Transactional(readOnly = true)
-    public Article getArticle(Long articleId) {
+    public Article findArticle(Long articleId) {
         return articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleException(ArticleErrorCode.NOT_FOUND_ARTICLE));
     }
 
     @Transactional(readOnly = true)
-    public Page<Article> getMemberArticles(Long memberId, int page, int size) {
+    public Page<Article> findMemberArticles(Long memberId, int page, int size) {
         Pageable articlePageable = PageRequest.of(page, size, Sort.by(PAGE_SORT_DELIMITER).descending());
         return articleRepository.findArticleByMemberId(memberId, articlePageable);
     }

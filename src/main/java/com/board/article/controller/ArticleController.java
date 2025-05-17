@@ -51,7 +51,7 @@ public class ArticleController {
             @RequestParam Long lastId,
             @RequestParam int size
     ) {
-        List<Article> articles = articleService.getAllArticles(lastId, size);
+        List<Article> articles = articleService.findAllArticles(lastId, size);
         List<ArticleResponse> responses = articles.stream()
                 .map(article -> new ArticleResponse(
                         article.getId(),
@@ -65,7 +65,7 @@ public class ArticleController {
 
     @GetMapping("/articles/{articleId}")
     public ResponseEntity<ArticleResponse> showArticle(@PathVariable Long articleId) {
-        Article article = articleService.getArticle(articleId);
+        Article article = articleService.findArticle(articleId);
         ArticleResponse response = new ArticleResponse(
                 article.getId(),
                 article.getMemberId(),
@@ -82,7 +82,7 @@ public class ArticleController {
             @RequestParam int page,
             @RequestParam int size
     ) {
-        Page<Article> articles = articleService.getMemberArticles(memberId, page, size);
+        Page<Article> articles = articleService.findMemberArticles(memberId, page, size);
         List<ArticleResponse> responses = articles.stream()
                 .map(article -> new ArticleResponse(
                         article.getId(),

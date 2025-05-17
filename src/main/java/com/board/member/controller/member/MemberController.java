@@ -26,7 +26,7 @@ public class MemberController {
 
     @GetMapping("/members")
     public ResponseEntity<MemberResponse> showMember(@Auth Long memberId) {
-        Member member = memberService.getMember(memberId);
+        Member member = memberService.findMember(memberId);
         MemberResponse response = new MemberResponse(
                 member.getMemberName(),
                 member.getMemberNickName(),
