@@ -2,12 +2,11 @@ package com.board.article.controller;
 
 import com.board.article.controller.dto.request.ArticleRequest;
 import com.board.article.controller.dto.response.ArticleResponse;
-import com.board.article.controller.dto.response.ArticleResponses;
+import com.board.article.controller.dto.response.PageArticleResponse;
 import com.board.article.domain.Article;
 import com.board.article.service.ArticleService;
 import com.board.global.resolver.annotation.Auth;
 import java.net.URI;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -47,20 +46,12 @@ public class ArticleController {
     }
 
     @GetMapping("/articles")
-    public ResponseEntity<ArticleResponses> showAllArticles(
+    public ResponseEntity<PageArticleResponse> showAllArticles(
             @RequestParam Long lastId,
             @RequestParam int size
     ) {
-        List<Article> articles = articleService.findAllArticles(lastId, size);
-        List<ArticleResponse> responses = articles.stream()
-                .map(article -> new ArticleResponse(
-                        article.getId(),
-                        article.getMemberId(),
-                        article.getTitle(),
-                        article.getContent()
-                )).toList();
-
-        return ResponseEntity.ok(new ArticleResponses(responses));
+        Page<Article> articles = articleService.findAllArticles(lastId, size);
+        return ResponseEntity.ok(new PageArticleResponse(articles));
     }
 
     @GetMapping("/articles/{articleId}")
@@ -77,21 +68,13 @@ public class ArticleController {
     }
 
     @GetMapping("/members/me/articles")
-    public ResponseEntity<ArticleResponses> showMemberArticles(
+    public ResponseEntity<PageArticleResponse> showMemberArticles(
             @Auth Long memberId,
             @RequestParam int page,
             @RequestParam int size
     ) {
         Page<Article> articles = articleService.findMemberArticles(memberId, page, size);
-        List<ArticleResponse> responses = articles.stream()
-                .map(article -> new ArticleResponse(
-                        article.getId(),
-                        article.getMemberId(),
-                        article.getTitle(),
-                        article.getContent()
-                )).toList();
-
-        return ResponseEntity.ok(new ArticleResponses(responses));
+        return ResponseEntity.ok(new PageArticleResponse(articles));
     }
 
     @PatchMapping("/articles/{articleId}")

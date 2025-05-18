@@ -47,7 +47,7 @@ class MemberServiceTest {
             given(memberRepository.findMemberById(memberId)).willReturn(Optional.of(member));
 
             // when
-            Member response = memberService.getMember(memberId);
+            Member response = memberService.findMember(memberId);
 
             // then
             assertThat(response.getMemberName()).isEqualTo("신짱구");
@@ -99,7 +99,7 @@ class MemberServiceTest {
             given(memberRepository.findMemberById(memberId)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> memberService.getMember(memberId))
+            assertThatThrownBy(() -> memberService.findMember(memberId))
                     .isInstanceOf(MemberException.class)
                     .hasMessageContaining(MemberErrorCode.NOT_FOUND_MEMBER.message());
         }

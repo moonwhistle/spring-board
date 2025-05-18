@@ -4,7 +4,6 @@ import com.board.article.domain.Article;
 import com.board.article.exception.ArticleErrorCode;
 import com.board.article.exception.ArticleException;
 import com.board.article.repository.ArticleRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,7 +50,7 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public List<Article> findAllArticles(Long lastId, int size) {
+    public Page<Article> findAllArticles(Long lastId, int size) {
         Pageable articlePageable = PageRequest.of(NO_OFFSET_PAGING_PAGE, size, Sort.by(PAGE_SORT_DELIMITER).descending());
         return articleRepository.findByIdLessThanOrderByIdDesc(lastId, articlePageable);
     }

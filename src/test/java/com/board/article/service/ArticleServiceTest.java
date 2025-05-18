@@ -37,13 +37,16 @@ class ArticleServiceTest {
     private ArticleService articleService;
 
     private Article article;
-    private List<Article> articles;
+    private Page<Article> articlePage;
 
     @BeforeEach
     void set() {
         article = new Article(1L, "제목1", "내용1");
-        articles = List.of(article);
+        List<Article> articleList = List.of(article);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
+        articlePage = new PageImpl<>(articleList, pageable, articleList.size());
     }
+
 
     @Nested
     class 정상_동작_테스트를_진행한다 {
@@ -71,11 +74,12 @@ class ArticleServiceTest {
             // given
             Long lastId = 0L;
             int size = 10;
-            given(articleRepository.findByIdLessThanOrderByIdDesc(lastId, PageRequest.of(0, size, Sort.by("id").descending())))
-                    .willReturn(articles);
+            Pageable pageable = PageRequest.of(0, size, Sort.by("id").descending());
+            given(articleRepository.findByIdLessThanOrderByIdDesc(lastId, pageable))
+                    .willReturn(articlePage);
 
             // when
-            List<Article> responses = articleService.getAllArticles(lastId, size);
+            Page<Article> responses = articleService.findAllArticles(lastId, size);
 
             // then
             assertThat(responses).hasSize(1)
@@ -91,7 +95,7 @@ class ArticleServiceTest {
             given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
 
             // when
-            Article response = articleService.getArticle(articleId);
+            Article response = articleService.findArticle(articleId);
 
             // then
             assertThat(response.getTitle()).isEqualTo("제목1");
@@ -105,11 +109,10 @@ class ArticleServiceTest {
             int page = 0;
             int size = 10;
             Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-            Page<Article> articlePage = new PageImpl<>(articles, pageable, articles.size());
             given(articleRepository.findArticleByMemberId(memberId, pageable)).willReturn(articlePage);
 
             // when
-            Page<Article> responses = articleService.getMemberArticles(memberId, page, size);
+            Page<Article> responses = articleService.findMemberArticles(memberId, page, size);
 
             // then
             assertThat(responses).hasSize(1)
@@ -160,7 +163,7 @@ class ArticleServiceTest {
             given(articleRepository.findById(articleId)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> articleService.getArticle(articleId))
+            assertThatThrownBy(() -> articleService.findArticle(articleId))
                     .isInstanceOf(ArticleException.class)
                     .hasMessageContaining(ArticleErrorCode.NOT_FOUND_ARTICLE.message());
         }

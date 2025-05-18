@@ -1,6 +1,7 @@
 package com.board.article.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -46,106 +47,109 @@ class ArticleControllerTest {
     @MockBean
     private AuthArgumentResolver authArgumentResolver;
 
-    private Article articleResponse;
-    private List<Article> articleResponses;
+    private Article article;
+    private Page<Article> articlePage;
 
     @BeforeEach
     void setUp() throws Exception {
         given(authArgumentResolver.supportsParameter(any())).willReturn(true);
         given(authArgumentResolver.resolveArgument(any(), any(), any(), any())).willReturn(1L);
-        articleResponse = new Article(1L, "제목", "내용");
-        ReflectionTestUtils.setField(articleResponse, "id", 1L);
-        articleResponses = List.of(articleResponse);
+
+        article = new Article(1L, "제목", "내용");
+        ReflectionTestUtils.setField(article, "id", 1L);
+
+        List<Article> articles = List.of(article);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
+        articlePage = new PageImpl<>(articles, pageable, articles.size());
     }
 
     @Test
     @DisplayName("게시글을 생성한다.")
     void createArticle() throws Exception {
-        // given
         ArticleRequest request = new ArticleRequest("제목", "내용");
-        given(articleService.createArticle(any(), any(), any())).willReturn(articleResponse);
+        given(articleService.createArticle(anyLong(), any(), any())).willReturn(article);
 
-        // when & then
         mockMvc.perform(post("/articles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "http://localhost/articles/1"))
-                .andExpect(jsonPath("$.articleId").value(1L));
+                .andExpect(jsonPath("$.articleId").value(1L))
+                .andExpect(jsonPath("$.title").value("제목"))
+                .andExpect(jsonPath("$.content").value("내용"));
     }
 
     @Test
     @DisplayName("모든 게시글을 조회한다.")
     void showAllArticles() throws Exception {
-        // given
-        Long lastId = 0L;
-        int size = 5;
-        given(articleService.getAllArticles(lastId, size)).willReturn(articleResponses);
+        given(articleService.findAllArticles(0L, 5)).willReturn(articlePage);
 
-        // when & then
         mockMvc.perform(get("/articles")
-                        .param("lastId", String.valueOf(lastId))
-                        .param("size", String.valueOf(size)))
+                        .param("lastId", "0")
+                        .param("size", "5"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.articleResponses[0].articleId").value(1L));
+                .andExpect(jsonPath("$.articleResponses[0].articleId").value(1L))
+                .andExpect(jsonPath("$.articleResponses[0].title").value("제목"))
+                .andExpect(jsonPath("$.articleResponses[0].content").value("내용"))
+                .andExpect(jsonPath("$.pageNumber").value(0))
+                .andExpect(jsonPath("$.pageSize").value(10))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1));
     }
 
     @Test
     @DisplayName("게시글 하나를 조회한다.")
     void showArticle() throws Exception {
-        // given
-        given(articleService.getArticle(1L)).willReturn(articleResponse);
+        given(articleService.findArticle(1L)).willReturn(article);
 
-        // when & then
         mockMvc.perform(get("/articles/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.articleId").value(1L));
+                .andExpect(jsonPath("$.articleId").value(1L))
+                .andExpect(jsonPath("$.title").value("제목"))
+                .andExpect(jsonPath("$.content").value("내용"));
     }
 
     @Test
     @DisplayName("회원의 게시글을 조회한다.")
     void showMemberArticles() throws Exception {
-        // given
-        Long memberId = 1L;
-        int page = 0;
-        int size = 10;
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        Page<Article> articlePage = new PageImpl<>(articleResponses, pageable, articleResponses.size());
-        given(articleService.getMemberArticles(memberId, page, size)).willReturn(articlePage);
+        given(articleService.findMemberArticles(1L, 0, 10)).willReturn(articlePage);
 
-        // when & then
         mockMvc.perform(get("/members/me/articles")
-                        .param("page", String.valueOf(page))
-                        .param("size", String.valueOf(size)))
+                        .param("page", "0")
+                        .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.articleResponses[0].articleId").value(1L));
+                .andExpect(jsonPath("$.articleResponses[0].articleId").value(1L))
+                .andExpect(jsonPath("$.articleResponses[0].title").value("제목"))
+                .andExpect(jsonPath("$.articleResponses[0].content").value("내용"));
     }
 
     @Test
     @DisplayName("게시글을 수정한다.")
     void updateArticle() throws Exception {
-        // given
         ArticleRequest request = new ArticleRequest("수정된 제목", "수정된 내용");
-        Article response = new Article(1L, "수정된 제목", "수정된 내용");
-        given(articleService.updateArticle(any(), any(), any(), any())).willReturn(response);
+        Article updatedArticle = new Article(1L, "수정된 제목", "수정된 내용");
+        ReflectionTestUtils.setField(updatedArticle, "id", 1L);
 
-        // when & then
+        given(articleService.updateArticle(anyLong(), anyLong(), any(), any())).willReturn(updatedArticle);
+
         mockMvc.perform(patch("/articles/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("수정된 제목"));
+                .andExpect(jsonPath("$.articleId").value(1L))
+                .andExpect(jsonPath("$.title").value("수정된 제목"))
+                .andExpect(jsonPath("$.content").value("수정된 내용"));
     }
 
     @Test
     @DisplayName("게시글을 삭제한다.")
     void deleteArticle() throws Exception {
-        // given
-        given(articleService.deleteArticle(1L, 1L)).willReturn(articleResponse);
+        given(articleService.deleteArticle(1L, 1L)).willReturn(article);
 
-        // when & then
         mockMvc.perform(delete("/articles/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.articleId").value(1L));
+                .andExpect(jsonPath("$.articleId").value(1L))
+                .andExpect(jsonPath("$.title").value("제목"))
+                .andExpect(jsonPath("$.content").value("내용"));
     }
 }

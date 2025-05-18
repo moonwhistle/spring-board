@@ -51,7 +51,7 @@ class MemberControllerTest {
     void showMember() throws Exception {
         // given
         Long memberId = 1L;
-        given(memberService.getMember(memberId)).willReturn(member);
+        given(memberService.findMember(memberId)).willReturn(member);
 
         // when & then
         mockMvc.perform(get("/members")

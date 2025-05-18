@@ -80,7 +80,7 @@ class CommentControllerTest {
         // given
         Long lastId = 3L;
         int size = 5;
-        given(commentService.getArticleComments(1L, lastId, size)).willReturn(responses);
+        given(commentService.findArticleComments(1L, lastId, size)).willReturn(responses);
 
         // when & then
         mockMvc.perform(get("/articles/1/comments")
@@ -98,7 +98,7 @@ class CommentControllerTest {
         int size = 10;
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<Comment> commentPage = new PageImpl<>(responses, pageable, responses.size());
-        given(commentService.getMemberComments(1L, page, size)).willReturn(commentPage);
+        given(commentService.findMemberComments(1L, page, size)).willReturn(commentPage);
 
         // when & then
         mockMvc.perform(get("/members/me/comments")

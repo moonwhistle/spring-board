@@ -66,7 +66,7 @@ class CommentServiceTest {
             Long articleId = 1L;
 
             given(commentRepository.save(any(Comment.class))).willReturn(comment);
-            given(articleService.getArticle(articleId)).willReturn(article);
+            given(articleService.findArticle(articleId)).willReturn(article);
 
             // when
             Comment response = commentService.createComment(request.content(), memberId, articleId);
@@ -89,7 +89,7 @@ class CommentServiceTest {
                     .willReturn(comments);
 
             // when
-            List<Comment> responses = commentService.getArticleComments(articleId, lastId, size);
+            List<Comment> responses = commentService.findArticleComments(articleId, lastId, size);
 
             // then
             assertThat(responses).hasSize(1)
@@ -109,7 +109,7 @@ class CommentServiceTest {
             given(commentRepository.findAllByMemberId(memberId, pageable)).willReturn(commentPage);
 
             // when
-            Page<Comment> responses = commentService.getMemberComments(memberId, page, size);
+            Page<Comment> responses = commentService.findMemberComments(memberId, page, size);
 
             // then
             assertThat(responses).hasSize(1)
@@ -156,7 +156,7 @@ class CommentServiceTest {
             given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
 
             // when
-            Comment response = commentService.getComment(commentId);
+            Comment response = commentService.findComment(commentId);
 
             // then
             assertThat(response.getContent()).isEqualTo("첫 번째 게시글 댓글 1");
@@ -174,7 +174,7 @@ class CommentServiceTest {
             given(commentRepository.findById(commentId)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> commentService.getComment(commentId))
+            assertThatThrownBy(() -> commentService.findComment(commentId))
                     .isInstanceOf(CommentException.class)
                     .hasMessageContaining(CommentErrorCode.NOT_FOUND_COMMENT.message());
         }

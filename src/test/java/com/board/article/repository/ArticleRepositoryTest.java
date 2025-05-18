@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.board.article.domain.Article;
 import com.board.article.loader.ArticleTestDataLoader;
-import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +45,7 @@ class ArticleRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
 
         // when
-        List<Article> articles = articleRepository.findByIdLessThanOrderByIdDesc(lastId, pageable);
+        Page<Article> articles = articleRepository.findByIdLessThanOrderByIdDesc(lastId, pageable);
 
         // then
         assertThat(articles).hasSize(1);
