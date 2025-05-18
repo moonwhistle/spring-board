@@ -47,14 +47,19 @@ class CommentControllerTest {
     private AuthArgumentResolver authArgumentResolver;
 
     private Comment response;
-    private List<Comment> responses;
     private Article article;
+    private Page<Comment> commentPage;
     @BeforeEach
     void setUp() throws Exception {
         article = new Article(1L, "제목", "내용");
         ReflectionTestUtils.setField(article, "id", 1L);
+
         response = new Comment(1L, article, "댓글 내용");
-        responses = List.of(response);
+        List<Comment> responses = List.of(response);
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
+        commentPage = new PageImpl<>(responses, pageable, responses.size());
+
         given(authArgumentResolver.supportsParameter(any())).willReturn(true);
         given(authArgumentResolver.resolveArgument(any(), any(), any(), any())).willReturn(1L);
     }
@@ -80,7 +85,7 @@ class CommentControllerTest {
         // given
         Long lastId = 3L;
         int size = 5;
-        given(commentService.findArticleComments(1L, lastId, size)).willReturn(responses);
+        given(commentService.findArticleComments(1L, lastId, size)).willReturn(commentPage);
 
         // when & then
         mockMvc.perform(get("/articles/1/comments")
@@ -96,8 +101,6 @@ class CommentControllerTest {
         // given
         int page = 0;
         int size = 10;
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        Page<Comment> commentPage = new PageImpl<>(responses, pageable, responses.size());
         given(commentService.findMemberComments(1L, page, size)).willReturn(commentPage);
 
         // when & then

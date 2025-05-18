@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.board.comment.domain.Comment;
 import com.board.comment.loader.CommentTestDataLoader;
-import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ class CommentRepositoryTest {
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id").descending());
 
         // when
-        List<Comment> comments = commentRepository.findByArticleIdAndIdLessThanOrderByIdDesc(articleId, lastId, pageable);
+        Page<Comment> comments = commentRepository.findByArticleIdAndIdLessThanOrderByIdDesc(articleId, lastId, pageable);
 
         // then
         assertThat(comments).hasSize(2)

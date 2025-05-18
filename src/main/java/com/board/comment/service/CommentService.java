@@ -7,7 +7,6 @@ import com.board.comment.domain.Comment;
 import com.board.comment.exception.CommentErrorCode;
 import com.board.comment.exception.CommentException;
 import com.board.comment.repository.CommentRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -56,7 +55,7 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<Comment> findArticleComments(Long articleId, Long lastId, int size) {
+    public Page<Comment> findArticleComments(Long articleId, Long lastId, int size) {
         Pageable commentPageable = PageRequest.of(NO_OFFSET_PAGING_PAGE, size, Sort.by(PAGE_SORT_DELIMITER).descending());
         return commentRepository.findByArticleIdAndIdLessThanOrderByIdDesc(articleId, lastId, commentPageable);
     }

@@ -45,6 +45,7 @@ class CommentServiceTest {
     private Comment comment;
     private List<Comment> comments;
     private Article article;
+    private Page<Comment> commentPage;
 
     @BeforeEach
     void set() {
@@ -52,6 +53,8 @@ class CommentServiceTest {
         ReflectionTestUtils.setField(article, "id", 1L);
         comment = new Comment(1L, article, "첫 번째 게시글 댓글 1");
         comments = List.of(comment);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
+        commentPage = new PageImpl<>(comments, pageable, comments.size());
     }
 
     @Nested
@@ -86,10 +89,10 @@ class CommentServiceTest {
             int size = 5;
             Pageable pageable = PageRequest.of(0, size, Sort.by("id").descending());
             given(commentRepository.findByArticleIdAndIdLessThanOrderByIdDesc(articleId, lastId, pageable))
-                    .willReturn(comments);
+                    .willReturn(commentPage);
 
             // when
-            List<Comment> responses = commentService.findArticleComments(articleId, lastId, size);
+            Page<Comment> responses = commentService.findArticleComments(articleId, lastId, size);
 
             // then
             assertThat(responses).hasSize(1)

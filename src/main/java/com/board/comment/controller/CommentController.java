@@ -1,13 +1,12 @@
 package com.board.comment.controller;
 
 import com.board.comment.controller.dto.reponse.CommentResponse;
-import com.board.comment.controller.dto.reponse.CommentResponses;
+import com.board.comment.controller.dto.reponse.PageCommentResponse;
 import com.board.comment.controller.dto.request.CommentRequest;
 import com.board.comment.domain.Comment;
 import com.board.comment.service.CommentService;
 import com.board.global.resolver.annotation.Auth;
 import java.net.URI;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -46,37 +45,23 @@ public class CommentController {
     }
 
     @GetMapping("/articles/{articleId}/comments")
-    public ResponseEntity<CommentResponses> showArticleComments(
+    public ResponseEntity<PageCommentResponse> showArticleComments(
             @PathVariable Long articleId,
             @RequestParam Long lastId,
             @RequestParam int size
     ) {
-        List<Comment> comments = commentService.findArticleComments(articleId, lastId, size);
-        List<CommentResponse> responses = comments.stream()
-                .map(comment -> new CommentResponse(
-                        comment.getMemberId(),
-                        comment.getArticle().getId(),
-                        comment.getContent()
-                )).toList();
-
-        return ResponseEntity.ok(new CommentResponses(responses));
+        Page<Comment> comments = commentService.findArticleComments(articleId, lastId, size);
+        return ResponseEntity.ok(new PageCommentResponse(comments));
     }
 
     @GetMapping("members/me/comments")
-    public ResponseEntity<CommentResponses> showMemberComments(
+    public ResponseEntity<PageCommentResponse> showMemberComments(
             @Auth Long memberId,
             @RequestParam int page,
             @RequestParam int size
     ) {
         Page<Comment> comments = commentService.findMemberComments(memberId, page, size);
-        List<CommentResponse> responses = comments.stream()
-                .map(comment -> new CommentResponse(
-                        comment.getMemberId(),
-                        comment.getArticle().getId(),
-                        comment.getContent()
-                )).toList();
-
-        return ResponseEntity.ok(new CommentResponses(responses));
+        return ResponseEntity.ok(new PageCommentResponse(comments));
     }
 
     @PatchMapping("/comments/{commentId}")
