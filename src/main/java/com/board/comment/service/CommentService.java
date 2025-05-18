@@ -1,12 +1,11 @@
 package com.board.comment.service;
 
-import com.board.article.domain.Article;
-import com.board.article.service.ArticleService;
 import com.board.comment.controller.dto.request.CommentRequest;
 import com.board.comment.domain.Comment;
 import com.board.comment.exception.CommentErrorCode;
 import com.board.comment.exception.CommentException;
 import com.board.comment.repository.CommentRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,11 +23,9 @@ public class CommentService {
     private static final int NO_OFFSET_PAGING_PAGE = 0;
 
     private final CommentRepository commentRepository;
-    private final ArticleService articleService;
 
     public Comment createComment(String content, Long memberId, Long articleId) {
-        Article article = articleService.findArticle(articleId);
-        Comment comment = new Comment(memberId, article, content);
+        Comment comment = new Comment(memberId, articleId, content);
         commentRepository.save(comment);
 
         return comment;
@@ -52,6 +49,12 @@ public class CommentService {
 
     public void updateMemberIdToNull(Long memberId) {
         commentRepository.updateMemberIdToNull(memberId);
+    }
+
+    public void deleteCommentByArticle(Long articleId) {
+        List<Comment> comment = commentRepository.findByArticleId(articleId);
+
+        commentRepository.deleteAll(comment);
     }
 
     @Transactional(readOnly = true)

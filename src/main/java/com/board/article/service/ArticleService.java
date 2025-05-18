@@ -4,7 +4,9 @@ import com.board.article.domain.Article;
 import com.board.article.exception.ArticleErrorCode;
 import com.board.article.exception.ArticleException;
 import com.board.article.repository.ArticleRepository;
+import com.board.article.service.event.ArticleDeletedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +23,7 @@ public class ArticleService {
     private static final int NO_OFFSET_PAGING_PAGE = 0;
 
     private final ArticleRepository articleRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Article createArticle(Long memberId, String title, String content) {
         Article article = new Article(memberId, title, content);
@@ -41,6 +44,7 @@ public class ArticleService {
         Article article = findArticle(articleId);
         article.validateAccessAboutArticle(memberId);
         articleRepository.delete(article);
+        eventPublisher.publishEvent(new ArticleDeletedEvent(articleId));
 
         return article;
     }

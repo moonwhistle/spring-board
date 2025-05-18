@@ -32,7 +32,7 @@ public class CommentController {
         Comment comment = commentService.createComment(request.content(), memberId, articleId);
         CommentResponse response = new CommentResponse(
                 comment.getMemberId(),
-                comment.getArticle().getId(),
+                comment.getArticleId(),
                 comment.getContent()
         );
 
@@ -70,7 +70,7 @@ public class CommentController {
         Comment comment = commentService.updateComment(request, memberId, commentId);
         CommentResponse response = new CommentResponse(
                 comment.getMemberId(),
-                comment.getArticle().getId(),
+                comment.getArticleId(),
                 comment.getContent()
         );
 
@@ -82,7 +82,7 @@ public class CommentController {
         Comment comment = commentService.deleteComment(memberId, commentId);
         CommentResponse response = new CommentResponse(
                 comment.getMemberId(),
-                comment.getArticle().getId(),
+                comment.getArticleId(),
                 comment.getContent()
         );
 

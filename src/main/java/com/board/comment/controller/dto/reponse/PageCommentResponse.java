@@ -16,7 +16,7 @@ public record PageCommentResponse(
         this(
                 page.map(comment -> new CommentResponse(
                         comment.getMemberId(),
-                        comment.getArticle().getId(),
+                        comment.getArticleId(),
                         comment.getContent()
                 )).getContent(),
                 page.getNumber(),

@@ -90,4 +90,41 @@ public class GlobalException extends RuntimeException {
 ---
 
 * ORM 은 DB를 테이블처럼 다루지 말고 객체 처럼 다루자는 목표로 등장.
-* 
+
+
+# 객체 관계에 따른 차이
+
+---
+
+## 단방향 매핑 (OneToMany or ManyToOne 한쪽만)
+
+* Comment → Article만 있는 구조 or Article -> Comment 만 있는 구조
+* 조회나 저장할 때 한쪽에서만 조작 가능
+~~~
+@Entity
+public class Comment {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "article_id")
+    private Article article;
+}
+
+댓글을 저장할 때 어떤 게시글에 달리는지는 필요함 → Comment → Article
+하지만 Article 입장에서는 굳이 댓글들을 알고 있을 필요 없음
+~~~
+
+## 양방향 매핑
+* Article → Comment, Comment → Article 모두 존재
+* 양쪽이 서로를 참조하는 구조
+~~~
+// Article
+@OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
+private List<Comment> comments;
+
+// Comment
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "article_id")
+private Article article;
+
+게시글 상세 페이지에서 댓글도 같이 조회하고 싶다 or 게시글 삭제 시 댓글도 자동 삭제되게 하고 싶다
+~~~
+

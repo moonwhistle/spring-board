@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-import com.board.article.domain.Article;
-import com.board.article.service.ArticleService;
 import com.board.comment.controller.dto.request.CommentRequest;
 import com.board.comment.domain.Comment;
 import com.board.comment.exception.CommentErrorCode;
@@ -27,7 +25,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("NonAsciiCharacters")
@@ -36,22 +33,16 @@ class CommentServiceTest {
     @Mock
     private CommentRepository commentRepository;
 
-    @Mock
-    private ArticleService articleService;
-
     @InjectMocks
     private CommentService commentService;
 
     private Comment comment;
     private List<Comment> comments;
-    private Article article;
     private Page<Comment> commentPage;
 
     @BeforeEach
     void set() {
-        article = new Article(1L, "제목", "내용");
-        ReflectionTestUtils.setField(article, "id", 1L);
-        comment = new Comment(1L, article, "첫 번째 게시글 댓글 1");
+        comment = new Comment(1L, 1L, "첫 번째 게시글 댓글 1");
         comments = List.of(comment);
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
         commentPage = new PageImpl<>(comments, pageable, comments.size());
@@ -69,15 +60,14 @@ class CommentServiceTest {
             Long articleId = 1L;
 
             given(commentRepository.save(any(Comment.class))).willReturn(comment);
-            given(articleService.findArticle(articleId)).willReturn(article);
 
             // when
             Comment response = commentService.createComment(request.content(), memberId, articleId);
 
             // then
             assertThat(response)
-                    .extracting(Comment::getContent, Comment::getMemberId, Comment::getArticle)
-                    .containsExactly("첫 번째 게시글 댓글1", memberId, article);
+                    .extracting(Comment::getContent, Comment::getMemberId, Comment::getArticleId)
+                    .containsExactly("첫 번째 게시글 댓글1", memberId, articleId);
         }
 
         @Test
